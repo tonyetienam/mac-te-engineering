@@ -65,15 +65,17 @@
         </div>
     </div>
 
-    <!-- UPDATED SCRIPT WITH PAYMENT INTEGRATION -->
     <script>
         let currentCurrency = 'NGN';
         let allProperties = [];
 
+        // UPDATE THIS TO YOUR LIVE RENDER URL
+        const BASE_URL = 'https://mac-te-engineering.onrender.com';
+
         // 1. Fetch data from your Node.js backend
         async function loadProperties() {
             try {
-                const response = await fetch('http://localhost:5000/api/properties');
+                const response = await fetch(`${BASE_URL}/api/properties`);
                 if (!response.ok) throw new Error('Failed to fetch');
                 allProperties = await response.json();
                 renderProperties(allProperties);
@@ -139,14 +141,14 @@
             btn.disabled = true;
 
             try {
-                const response = await fetch('http://localhost:5000/api/pay/initialize', {
+                const response = await fetch(`${BASE_URL}/api/pay/initialize`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         property_id: propertyId,
                         buyer_email: buyerEmail,
                         amount_ngn: priceNgn,
-                        metadata: { buyer_id: 'buyer_123' } // Replace with real user ID later
+                        metadata: { buyer_id: 'buyer_123' }
                     })
                 });
 
