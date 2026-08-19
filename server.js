@@ -3,6 +3,7 @@ const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const https = require('https');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -10,208 +11,208 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-const path = require('path');
 
-// Serve the static HTML file when visiting the root URL
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Database connection
+// Database connection (Cloud Render)
 const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 // Test database connection
 pool.connect((err) => {
-  if (err) {
-    console.error('Database connection failed:', err);
-  } else {
-    console.log('✅ Connected to PostgreSQL database');
-  }
+    if (err) {
+        console.error('Database connection failed:', err);
+    } else {
+        console.log('✅ Connected to PostgreSQL database');
+    }
 });
 
 // ------------ API ROUTES ------------
 
 // 1. CREATE A PROPERTY LISTING (POST)
 app.post('/api/properties', async (req, res) => {
-  try {
-    const {
-      title, description, address, city, state,
-      price_ngn, price_usd, ownership_type, seller_id,
-      year_built, land_size_sqm, bedrooms, bathrooms, images
-    } = req.body;
+    try {
+        const {
+            title, description, address, city, state,
+            price_ngn, price_usd, ownership_type, seller_id,
+            year_built, land_size_sqm, bedrooms, bathrooms, images
+        } = req.body;
 
-    // Validation
-    if (!title || !price_ngn || !price_usd || !address) {
-      return res.status(400).json({ error: 'Missing required fields' });
+        // Validation
+        if (!title || !price_ngn || !price_usd || !address) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        if (ownership_type === 'third_party' && !seller_id) {
+            return res.status(400).json({ error: 'Third-party properties require a seller_id' });
+        }
+
+        // Insert into database
+        const query = `
+            INSERT INTO properties (
+                title, description, address, city, state,
+                price_ngn, price_usd, ownership_type, seller_id,
+                year_built, land_size_sqm, bedrooms, bathrooms, images,
+                inspection_status, is_certified, engineering_score
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 'pending', FALSE, 0)
+            RETURNING *;
+        `;
+
+        const values = [
+            title, description, address, city, state,
+            price_ngn, price_usd, ownership_type, seller_id,
+            year_built, land_size_sqm, bedrooms, bathrooms, images || []
+        ];
+
+        const result = await pool.query(query, values);
+
+        res.status(201).json({
+            message: 'Property listed successfully',
+            property: result.rows[0],
+            next_step: 'Engineering inspection required. Please upload blueprints and site photos.'
+        });
+
+    } catch (error) {
+        console.error('Error creating property:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-
-    if (ownership_type === 'third_party' && !seller_id) {
-      return res.status(400).json({ error: 'Third-party properties require a seller_id' });
-    }
-
-    // Insert into database
-    const query = `
-      INSERT INTO properties (
-        title, description, address, city, state,
-        price_ngn, price_usd, ownership_type, seller_id,
-        year_built, land_size_sqm, bedrooms, bathrooms, images,
-        inspection_status, is_certified, engineering_score
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 'pending', FALSE, 0)
-      RETURNING *;
-    `;
-
-    const values = [
-      title, description, address, city, state,
-      price_ngn, price_usd, ownership_type, seller_id,
-      year_built, land_size_sqm, bedrooms, bathrooms, images || []
-    ];
-
-    const result = await pool.query(query, values);
-
-    res.status(201).json({
-      message: 'Property listed successfully',
-      property: result.rows[0],
-      next_step: 'Engineering inspection required. Please upload blueprints and site photos.'
-    });
-
-  } catch (error) {
-    console.error('Error creating property:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 });
 
 // 2. GET ALL PROPERTIES (GET)
 app.get('/api/properties', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM properties ORDER BY created_at DESC');
-    res.json(result.rows);
-  } catch (error) {
-    console.error('Error fetching properties:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+    try {
+        const result = await pool.query('SELECT * FROM properties ORDER BY created_at DESC');
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching properties:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 // 3. GET A SINGLE PROPERTY BY ID (GET)
 app.get('/api/properties/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await pool.query('SELECT * FROM properties WHERE id = $1', [id]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Property not found' });
+    try {
+        const { id } = req.params;
+        const result = await pool.query('SELECT * FROM properties WHERE id = $1', [id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Property not found' });
+        }
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error fetching property:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error('Error fetching property:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 });
+
 // ------------ PAYSTACK PAYMENT INTEGRATION ------------
-const https = require('https');
 
 // 1. INITIATE PAYMENT (POST)
 app.post('/api/pay/initialize', async (req, res) => {
-  const { property_id, buyer_email, amount_ngn, metadata } = req.body;
+    const { property_id, buyer_email, amount_ngn, metadata } = req.body;
 
-  const params = JSON.stringify({
-    email: buyer_email,
-    amount: amount_ngn * 100, // Paystack expects kobo (multiply by 100)
-    currency: "NGN",
-    metadata: { property_id, ...metadata },
-    callback_url: "http://localhost:5000/api/pay/verify" // Where they return after payment
-  });
-
-  const options = {
-    hostname: 'api.paystack.co',
-    port: 443,
-    path: '/transaction/initialize',
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-      'Content-Type': 'application/json'
-    }
-  };
-
-  const request = https.request(options, (response) => {
-    let data = '';
-    response.on('data', (chunk) => { data += chunk; });
-    response.on('end', () => {
-      res.status(200).json(JSON.parse(data));
+    const params = JSON.stringify({
+        email: buyer_email,
+        amount: amount_ngn * 100, // Paystack expects kobo (multiply by 100)
+        currency: "NGN",
+        metadata: { property_id, ...metadata },
+        callback_url: "https://mac-te-engineering.onrender.com/api/pay/verify"
     });
-  }).on('error', (error) => {
-    console.error(error);
-    res.status(500).json({ error: 'Payment initialization failed' });
-  });
 
-  request.write(params);
-  request.end();
+    const options = {
+        hostname: 'api.paystack.co',
+        port: 443,
+        path: '/transaction/initialize',
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+            'Content-Type': 'application/json'
+        }
+    };
+
+    const request = https.request(options, (response) => {
+        let data = '';
+        response.on('data', (chunk) => { data += chunk; });
+        response.on('end', () => {
+            res.status(200).json(JSON.parse(data));
+        });
+    }).on('error', (error) => {
+        console.error(error);
+        res.status(500).json({ error: 'Payment initialization failed' });
+    });
+
+    request.write(params);
+    request.end();
 });
 
 // 2. VERIFY PAYMENT (GET - The callback_url)
 app.get('/api/pay/verify', async (req, res) => {
-  const reference = req.query.reference;
-  if (!reference) {
-    return res.status(400).send('Missing reference');
-  }
-
-  const options = {
-    hostname: 'api.paystack.co',
-    port: 443,
-    path: `/transaction/verify/${reference}`,
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`
+    const reference = req.query.reference;
+    if (!reference) {
+        return res.status(400).send('Missing reference');
     }
-  };
 
-  const request = https.request(options, (response) => {
-    let data = '';
-    response.on('data', (chunk) => { data += chunk; });
-    response.on('end', async () => {
-      const result = JSON.parse(data);
-      if (result.data && result.data.status === 'success') {
-        // Payment successful! Save to database.
-        try {
-          const { property_id, buyer_id } = result.data.metadata || {};
-          const amount_ngn = result.data.amount / 100;
-
-          // Insert into transactions table
-          await pool.query(`
-            INSERT INTO transactions 
-            (property_id, buyer_id, amount_ngn, currency_used, payment_method, payment_reference, escrow_status)
-            VALUES ($1, $2, $3, 'NGN', 'card', $4, 'held')
-          `, [property_id, buyer_id, amount_ngn, reference]);
-
-          // Update property to sold (you can add a 'status' column later!)
-          // await pool.query('UPDATE properties SET status = 'sold' WHERE id = $1', [property_id]);
-
-          res.send(`
-            <html><body style="background:#0f1117; color:white; text-align:center; padding:50px;">
-              <h1 style="color:#00d1ff;">✅ Payment Successful!</h1>
-              <p>Your transaction reference: <b>${reference}</b></p>
-              <p>Amount: ₦${amount_ngn.toLocaleString()}</p>
-              <a href="http://localhost:5000" style="color:#00d1ff;">Return to Home</a>
-            </body></html>
-          `);
-        } catch (err) {
-          console.error(err);
-          res.status(500).send('Database error');
+    const options = {
+        hostname: 'api.paystack.co',
+        port: 443,
+        path: `/transaction/verify/${reference}`,
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`
         }
-      } else {
-        res.send(`<html><body style="background:#0f1117; color:red; text-align:center; padding:50px;"><h1>❌ Payment Failed</h1><p>Reference: ${reference}</p></body></html>`);
-      }
-    });
-  });
+    };
 
-  request.on('error', (error) => { console.error(error); });
-  request.end();
+    const request = https.request(options, (response) => {
+        let data = '';
+        response.on('data', (chunk) => { data += chunk; });
+        response.on('end', async () => {
+            const result = JSON.parse(data);
+            if (result.data && result.data.status === 'success') {
+                // Payment successful! Save to database.
+                try {
+                    const { property_id, buyer_id } = result.data.metadata || {};
+                    const amount_ngn = result.data.amount / 100;
+
+                    // Insert into transactions table
+                    await pool.query(`
+                        INSERT INTO transactions 
+                        (property_id, buyer_id, amount_ngn, currency_used, payment_method, payment_reference, escrow_status)
+                        VALUES ($1, $2, $3, 'NGN', 'card', $4, 'held')
+                    `, [property_id, buyer_id, amount_ngn, reference]);
+
+                    res.send(`
+                        <html><body style="background:#0f1117; color:white; text-align:center; padding:50px; font-family: Arial, sans-serif;">
+                            <h1 style="color:#00d1ff;">✅ Payment Successful!</h1>
+                            <p>Your transaction reference: <b>${reference}</b></p>
+                            <p>Amount: ₦${amount_ngn.toLocaleString()}</p>
+                            <a href="https://mac-te-engineering.onrender.com" style="display:inline-block; margin-top:20px; padding:10px 20px; background:#00d1ff; color:#0f1117; text-decoration:none; border-radius:5px; font-weight:bold;">Return to Home</a>
+                        </body></html>
+                    `);
+                } catch (err) {
+                    console.error(err);
+                    res.status(500).send('Database error');
+                }
+            } else {
+                res.send(`
+                    <html><body style="background:#0f1117; color:white; text-align:center; padding:50px; font-family: Arial, sans-serif;">
+                        <h1 style="color:red;">❌ Payment Failed</h1>
+                        <p>Reference: ${reference}</p>
+                        <a href="https://mac-te-engineering.onrender.com" style="display:inline-block; margin-top:20px; padding:10px 20px; background:#00d1ff; color:#0f1117; text-decoration:none; border-radius:5px; font-weight:bold;">Return to Home</a>
+                    </body></html>
+                `);
+            }
+        });
+    });
+
+    request.on('error', (error) => { console.error(error); });
+    request.end();
 });
+
 // ------------ START SERVER ------------
 app.listen(PORT, () => {
-  console.log(`🚀 Mac-TE Engineering server running on http://localhost:${PORT}`);
+    console.log(`🚀 Mac-TE Engineering server running on http://localhost:${PORT}`);
 });
+
+// NUCLEAR OPTION: Serve the static HTML file for the root URL
+app.use(express.static(__dirname));
