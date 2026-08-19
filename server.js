@@ -10,6 +10,12 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+const path = require('path');
+
+// Serve the static HTML file when visiting the root URL
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // Database connection
 const pool = new Pool({
