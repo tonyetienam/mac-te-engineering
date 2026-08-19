@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mac-TE Engineering | Properties</title>
+    <style>
+        /* Mac-TE Dark Theme */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f1117; color: #e0e0e0; padding: 40px 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
+        h1 { font-size: 28px; letter-spacing: 1px; }
+        h1 span { color: #00d1ff; }
+        
+        .controls { display: flex; gap: 15px; align-items: center; }
+        .currency-btn {
+            background: #1f2330; border: 1px solid #2c3142; color: #e0e0e0;
+            padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s;
+            font-weight: bold;
+        }
+        .currency-btn.active { background: #00d1ff; color: #0f1117; border-color: #00d1ff; }
+        .currency-btn:hover { border-color: #00d1ff; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+        
+        .property-card {
+            background: #1a1d27; border-radius: 12px; overflow: hidden;
+            border: 1px solid #2c3142; transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .property-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); border-color: #00d1ff; }
+        
+        .image-placeholder {
+            height: 200px; background: #252a36; display: flex; align-items: center; justify-content: center;
+            color: #4a5166; font-size: 40px; font-weight: bold;
+        }
+        .content { padding: 20px; }
+        .content h2 { font-size: 20px; margin-bottom: 10px; color: #fff; }
+        .content p { color: #8a92a6; margin-bottom: 15px; font-size: 14px; line-height: 1.5; }
+        .details { display: flex; gap: 15px; margin-bottom: 20px; font-size: 13px; color: #8a92a6; }
+        .details span { background: #0f1117; padding: 4px 10px; border-radius: 20px; }
+        
+        .price-section { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #2c3142; padding-top: 15px; }
+        .price { font-size: 24px; font-weight: bold; color: #00d1ff; }
+        .badge { background: #00d1ff; color: #0f1117; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+
+        .loading { text-align: center; padding: 50px; color: #4a5166; font-size: 18px; }
+        .error { text-align: center; padding: 50px; color: #ff4757; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Mac-TE <span>Engineering</span></h1>
+            <div class="controls">
+                <button class="currency-btn active" id="btn-ngn" onclick="setCurrency('NGN')">₦ Naira</button>
+                <button class="currency-btn" id="btn-usd" onclick="setCurrency('USD')">$ USD</button>
+            </div>
+        </header>
+
+        <div id="properties-grid" class="grid">
+            <div class="loading">Loading properties...</div>
+        </div>
+    </div>
+
+    <!-- UPDATED SCRIPT WITH PAYMENT INTEGRATION -->
+    <script>
+        let currentCurrency = 'NGN';
+        let allProperties = [];
+
+        // 1. Fetch data from your Node.js backend
+        async function loadProperties() {
+            try {
+                const response = await fetch('http://localhost:5000/api/properties');
+                if (!response.ok) throw new Error('Failed to fetch');
+                allProperties = await response.json();
+                renderProperties(allProperties);
+            } catch (error) {
+                document.getElementById('properties-grid').innerHTML = `<div class="error">Error loading data. Make sure your server is running!</div>`;
+                console.error(error);
+            }
+        }
+
+        // 2. Render the properties onto the screen
+        function renderProperties(properties) {
+            const grid = document.getElementById('properties-grid');
+            if (properties.length === 0) {
+                grid.innerHTML = `<div class="loading">No properties listed yet. Add one via Postman!</div>`;
+                return;
+            }
+
+            grid.innerHTML = properties.map(prop => {
+                // Handle missing images
+                const imageUrl = prop.images && prop.images.length > 0 ? prop.images[0] : null;
+                const imageHtml = imageUrl 
+                    ? `<img src="${imageUrl}" alt="${prop.title}" style="width:100%; height:200px; object-fit:cover;">`
+                    : `<div class="image-placeholder">🏠</div>`;
+
+                // Get the correct price based on currency toggle
+                const priceDisplay = currentCurrency === 'NGN' 
+                    ? `₦${Number(prop.price_ngn).toLocaleString()}`
+                    : `$${Number(prop.price_usd).toLocaleString()}`;
+
+                const badge = prop.is_certified ? '<span class="badge">Mac-TE Certified</span>' : '';
+
+                return `
+                    <div class="property-card">
+                        ${imageHtml}
+                        <div class="content">
+                            <h2>${prop.title}</h2>
+                            <p>${prop.description || 'No description provided.'}</p>
+                            <div class="details">
+                                <span>${prop.bedrooms || 0} Beds</span>
+                                <span>${prop.bathrooms || 0} Baths</span>
+                                <span>${prop.land_size_sqm || 0} sqm</span>
+                            </div>
+                            <div class="price-section">
+                                <div class="price">${priceDisplay}</div>
+                                ${badge}
+                            </div>
+                            <button onclick="buyNow('${prop.id}', ${prop.price_ngn})" style="margin-top:15px; width:100%; padding:12px; background:#00d1ff; color:#0f1117; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Buy Now</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 3. PAYMENT LOGIC (Initiates the Paystack checkout)
+        async function buyNow(propertyId, priceNgn) {
+            const buyerEmail = prompt("Enter your email address to proceed with payment:");
+            if (!buyerEmail) return;
+
+            // Disable button to prevent double clicking
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('http://localhost:5000/api/pay/initialize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        property_id: propertyId,
+                        buyer_email: buyerEmail,
+                        amount_ngn: priceNgn,
+                        metadata: { buyer_id: 'buyer_123' } // Replace with real user ID later
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.status && data.data.authorization_url) {
+                    // Redirect user to Paystack secure checkout page
+                    window.location.href = data.data.authorization_url;
+                } else {
+                    alert('Payment initialization failed. Please try again.');
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Payment Error:', error);
+                alert('Network error. Please check your connection and try again.');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // 4. Handle the currency toggle button
+        function setCurrency(currency) {
+            currentCurrency = currency;
+            // Update button styles
+            document.getElementById('btn-ngn').classList.toggle('active', currency === 'NGN');
+            document.getElementById('btn-usd').classList.toggle('active', currency === 'USD');
+            // Re-render the existing data with new currency
+            renderProperties(allProperties); 
+        }
+
+        // 5. Load the properties when the page opens
+        loadProperties();
+    </script>
+</body>
+</html>
