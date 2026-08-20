@@ -144,18 +144,18 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-// 3. ADD TO CART (POST)
+// 3. ADD TO CART (POST) - FIXED WITH UUID CAST
 app.post('/api/cart/add', async (req, res) => {
     const { user_id, product_id, quantity } = req.body;
 
     try {
-        // 1. Find or create a cart for this user
-        let cartResult = await pool.query('SELECT id FROM cart WHERE user_id = $1', [user_id]);
+        // 1. Find or create a cart for this user (with UUID cast)
+        let cartResult = await pool.query('SELECT id FROM cart WHERE user_id = $1::UUID', [user_id]);
         let cart_id;
 
         if (cartResult.rows.length === 0) {
             // Create a new cart
-            const newCart = await pool.query('INSERT INTO cart (user_id) VALUES ($1) RETURNING id', [user_id]);
+            const newCart = await pool.query('INSERT INTO cart (user_id) VALUES ($1::UUID) RETURNING id', [user_id]);
             cart_id = newCart.rows[0].id;
         } else {
             cart_id = cartResult.rows[0].id;
@@ -200,7 +200,7 @@ app.get('/api/cart/:user_id', async (req, res) => {
             FROM cart c
             JOIN cart_items ci ON c.id = ci.cart_id
             JOIN products p ON ci.product_id = p.id
-            WHERE c.user_id = $1
+            WHERE c.user_id = $1::UUID
         `, [user_id]);
 
         res.json(result.rows);
