@@ -144,11 +144,17 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-// 3. ADD TO CART (POST) - FINAL FIX WITH UUID CONVERSION
+// 3. ADD TO CART (POST) - ULTIMATE FINAL FIX
 app.post('/api/cart/add', async (req, res) => {
     const { user_id, product_id, quantity } = req.body;
 
     try {
+        // 0. Check if the product actually exists in the database first!
+        const productCheck = await pool.query('SELECT id FROM products WHERE id = $1', [product_id]);
+        if (productCheck.rows.length === 0) {
+            return res.status(404).json({ error: 'Product not found. Please check the product ID.' });
+        }
+
         // Convert test string into a valid UUID to avoid database errors
         const validUserId = user_id === "test-user-123" ? "00000000-0000-0000-0000-000000000001" : user_id;
 
