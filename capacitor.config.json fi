@@ -1,0 +1,9 @@
+{
+  "appId": "com.macte.engineering",
+  "appName": "Mac-TE Engineering",
+  "webDir": "www",
+  "server": {
+    "url": "https://mac-te-engineering.onrender.com",
+    "cleartext": true
+  }
+}

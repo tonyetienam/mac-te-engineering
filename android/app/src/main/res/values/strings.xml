@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mac-TE Engineering</string>
+    <string name="title_activity_main">Mac-TE Engineering</string>
+    <string name="package_name">com.macte.engineering</string>
+    <string name="custom_url_scheme">com.macte.engineering</string>
+</resources>

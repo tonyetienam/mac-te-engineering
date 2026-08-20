@@ -2,185 +2,152 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mac-TE Engineering | Properties</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mac-TE Engineering</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Mac-TE Dark Theme */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0f1117; color: #e0e0e0; padding: 40px 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
-        h1 { font-size: 28px; letter-spacing: 1px; }
-        h1 span { color: #00d1ff; }
-        
-        .controls { display: flex; gap: 15px; align-items: center; }
-        .currency-btn {
-            background: #1f2330; border: 1px solid #2c3142; color: #e0e0e0;
-            padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s;
-            font-weight: bold;
+        :root {
+            --primary: #ff6b35; /* Orange theme like screenshot */
+            --bg: #f9f9f9;
+            --white: #ffffff;
+            --text: #333333;
+            --gray: #888888;
         }
-        .currency-btn.active { background: #00d1ff; color: #0f1117; border-color: #00d1ff; }
-        .currency-btn:hover { border-color: #00d1ff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; /* Space for bottom nav */ }
+        
+        /* --- Top Header --- */
+        .header { padding: 15px; background: var(--white); display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; }
+        .search-bar { flex: 1; background: #f0f0f0; padding: 12px 15px; border-radius: 30px; display: flex; align-items: center; gap: 10px; }
+        .search-bar input { border: none; background: transparent; width: 100%; outline: none; font-size: 14px; }
+        .header i { font-size: 20px; color: var(--gray); }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
-        
-        .property-card {
-            background: #1a1d27; border-radius: 12px; overflow: hidden;
-            border: 1px solid #2c3142; transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .property-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); border-color: #00d1ff; }
-        
-        .image-placeholder {
-            height: 200px; background: #252a36; display: flex; align-items: center; justify-content: center;
-            color: #4a5166; font-size: 40px; font-weight: bold;
-        }
-        .content { padding: 20px; }
-        .content h2 { font-size: 20px; margin-bottom: 10px; color: #fff; }
-        .content p { color: #8a92a6; margin-bottom: 15px; font-size: 14px; line-height: 1.5; }
-        .details { display: flex; gap: 15px; margin-bottom: 20px; font-size: 13px; color: #8a92a6; }
-        .details span { background: #0f1117; padding: 4px 10px; border-radius: 20px; }
-        
-        .price-section { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #2c3142; padding-top: 15px; }
-        .price { font-size: 24px; font-weight: bold; color: #00d1ff; }
-        .badge { background: #00d1ff; color: #0f1117; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        /* --- Banner --- */
+        .banner { margin: 15px; border-radius: 15px; overflow: hidden; position: relative; height: 150px; background: #ffdcd2; display: flex; align-items: center; justify-content: space-between; padding: 20px; color: #8b3a1a; }
+        .banner-text h2 { font-size: 18px; margin-bottom: 5px; }
+        .banner-text button { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 20px; margin-top: 10px; font-weight: bold; cursor: pointer; }
+        .banner img { height: 120px; object-fit: contain; mix-blend-mode: multiply; }
 
-        .loading { text-align: center; padding: 50px; color: #4a5166; font-size: 18px; }
-        .error { text-align: center; padding: 50px; color: #ff4757; font-size: 18px; }
+        /* --- Featured Sections --- */
+        .section-header { display: flex; justify-content: space-between; padding: 0 15px; margin: 20px 0 10px; align-items: center; }
+        .section-header h3 { font-size: 16px; color: var(--primary); }
+        .section-header span { font-size: 12px; color: var(--gray); cursor: pointer; }
+        
+        .featured-scroll { display: flex; overflow-x: auto; padding: 0 15px; gap: 15px; padding-bottom: 10px; }
+        .featured-scroll::-webkit-scrollbar { display: none; }
+        .featured-item { min-width: 120px; background: var(--white); border-radius: 15px; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .featured-item i { font-size: 30px; color: var(--primary); margin-bottom: 5px; }
+        .featured-item p { font-size: 12px; font-weight: bold; }
+
+        /* --- Product Grid --- */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 15px 15px; }
+        .product-card { background: var(--white); border-radius: 15px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .product-img { height: 150px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 40px; }
+        .product-info { padding: 10px; }
+        .product-info h4 { font-size: 14px; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-info .price { font-size: 16px; font-weight: bold; color: #333; }
+        .product-info .price span { font-size: 12px; font-weight: normal; color: var(--gray); text-decoration: line-through; margin-left: 5px; }
+        
+        /* --- Bottom Nav --- */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 10px 0 20px; border-top: 1px solid #eee; z-index: 100; }
+        .nav-item { text-align: center; color: var(--gray); font-size: 10px; cursor: pointer; }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
+        .nav-item.active { color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>Mac-TE <span>Engineering</span></h1>
-            <div class="controls">
-                <button class="currency-btn active" id="btn-ngn" onclick="setCurrency('NGN')">₦ Naira</button>
-                <button class="currency-btn" id="btn-usd" onclick="setCurrency('USD')">$ USD</button>
-            </div>
-        </header>
-
-        <div id="properties-grid" class="grid">
-            <div class="loading">Loading properties...</div>
+    <!-- 1. Header & Search -->
+    <div class="header">
+        <i class="fas fa-bars"></i>
+        <div class="search-bar">
+            <i class="fas fa-search" style="color:#ccc; font-size:14px;"></i>
+            <input type="text" placeholder="Search for anything...">
         </div>
+        <i class="fas fa-sliders-h"></i>
     </div>
 
+    <!-- 2. Banner -->
+    <div class="banner">
+        <div class="banner-text">
+            <h2>BACK IN<br>STOCK!</h2>
+            <p style="font-size:12px;">Mac-TE Smart Villa</p>
+            <button>Shop now</button>
+        </div>
+        <img src="https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg" alt="Villa">
+    </div>
+
+    <!-- 3. Featured Sections -->
+    <div class="section-header">
+        <h3>Featured sections</h3>
+        <span>See all</span>
+    </div>
+    <div class="featured-scroll">
+        <div class="featured-item"><i class="fas fa-wind"></i><p>Air Coolers</p></div>
+        <div class="featured-item"><i class="fas fa-utensils"></i><p>Air Fryers</p></div>
+        <div class="featured-item"><i class="fas fa-baby"></i><p>Baby Essentials</p></div>
+        <div class="featured-item"><i class="fas fa-home"></i><p>Smart Homes</p></div>
+    </div>
+
+    <!-- 4. Property Grid -->
+    <div class="section-header" style="margin-top:0;">
+        <h3>All properties</h3>
+        <span>See all</span>
+    </div>
+    <div id="properties-grid" class="grid">
+        <!-- Javascript will load properties here -->
+        <div style="grid-column: 1/-1; text-align:center; padding:20px; color:#888;">Loading properties...</div>
+    </div>
+
+    <!-- 5. Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active"><i class="fas fa-store"></i>Shop</div>
+        <div class="nav-item"><i class="fas fa-shopping-cart"></i>Cart</div>
+        <div class="nav-item"><i class="fas fa-history"></i>History</div>
+        <div class="nav-item"><i class="fas fa-heart"></i>Wishlist</div>
+        <div class="nav-item"><i class="fas fa-user"></i>Account</div>
+    </div>
+
+    <!-- JAVASCRIPT TO FETCH PROPERTIES -->
     <script>
-        let currentCurrency = 'NGN';
-        let allProperties = [];
-
-        // UPDATE THIS TO YOUR LIVE RENDER URL
         const BASE_URL = 'https://mac-te-engineering.onrender.com';
+        let properties = [];
 
-        // 1. Fetch data from your Node.js backend
         async function loadProperties() {
             try {
                 const response = await fetch(`${BASE_URL}/api/properties`);
-                if (!response.ok) throw new Error('Failed to fetch');
-                allProperties = await response.json();
-                renderProperties(allProperties);
+                properties = await response.json();
+                renderProperties(properties);
             } catch (error) {
-                document.getElementById('properties-grid').innerHTML = `<div class="error">Error loading data. Make sure your server is running!</div>`;
-                console.error(error);
+                document.getElementById('properties-grid').innerHTML = `<div style="grid-column:1/-1; text-align:center; color:red;">Error loading data</div>`;
             }
         }
 
-        // 2. Render the properties onto the screen
-        function renderProperties(properties) {
+        function renderProperties(data) {
             const grid = document.getElementById('properties-grid');
-            if (properties.length === 0) {
-                grid.innerHTML = `<div class="loading">No properties listed yet. Add one via Postman!</div>`;
+            if (data.length === 0) {
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#888;">No properties listed yet.</div>`;
                 return;
             }
 
-            grid.innerHTML = properties.map(prop => {
-                // Handle missing images
-                const imageUrl = prop.images && prop.images.length > 0 ? prop.images[0] : null;
-                const imageHtml = imageUrl 
-                    ? `<img src="${imageUrl}" alt="${prop.title}" style="width:100%; height:200px; object-fit:cover;">`
-                    : `<div class="image-placeholder">🏠</div>`;
-
-                // Get the correct price based on currency toggle
-                const priceDisplay = currentCurrency === 'NGN' 
-                    ? `₦${Number(prop.price_ngn).toLocaleString()}`
-                    : `$${Number(prop.price_usd).toLocaleString()}`;
-
-                const badge = prop.is_certified ? '<span class="badge">Mac-TE Certified</span>' : '';
-
-                return `
-                    <div class="property-card">
-                        ${imageHtml}
-                        <div class="content">
-                            <h2>${prop.title}</h2>
-                            <p>${prop.description || 'No description provided.'}</p>
-                            <div class="details">
-                                <span>${prop.bedrooms || 0} Beds</span>
-                                <span>${prop.bathrooms || 0} Baths</span>
-                                <span>${prop.land_size_sqm || 0} sqm</span>
-                            </div>
-                            <div class="price-section">
-                                <div class="price">${priceDisplay}</div>
-                                ${badge}
-                            </div>
-                            <button onclick="buyNow('${prop.id}', ${prop.price_ngn})" style="margin-top:15px; width:100%; padding:12px; background:#00d1ff; color:#0f1117; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Buy Now</button>
-                        </div>
+            grid.innerHTML = data.map(prop => `
+                <div class="product-card">
+                    <div class="product-img">
+                        ${prop.images && prop.images.length > 0 
+                            ? `<img src="${prop.images[0]}" style="width:100%; height:100%; object-fit:cover;">` 
+                            : '<i class="fas fa-home"></i>'}
                     </div>
-                `;
-            }).join('');
+                    <div class="product-info">
+                        <h4>${prop.title}</h4>
+                        <div class="price">₦${Number(prop.price_ngn).toLocaleString()}</div>
+                        <button onclick="buyNow('${prop.id}')" style="width:100%; margin-top:10px; background:#ff6b35; color:white; border:none; padding:8px; border-radius:8px; cursor:pointer;">Buy Now</button>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        // 3. PAYMENT LOGIC (Initiates the Paystack checkout)
-        async function buyNow(propertyId, priceNgn) {
-            const buyerEmail = prompt("Enter your email address to proceed with payment:");
-            if (!buyerEmail) return;
-
-            // Disable button to prevent double clicking
-            const btn = event.target;
-            const originalText = btn.innerText;
-            btn.innerText = "Processing...";
-            btn.disabled = true;
-
-            try {
-                const response = await fetch(`${BASE_URL}/api/pay/initialize`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        property_id: propertyId,
-                        buyer_email: buyerEmail,
-                        amount_ngn: priceNgn,
-                        metadata: { buyer_id: 'buyer_123' }
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (data.status && data.data.authorization_url) {
-                    // Redirect user to Paystack secure checkout page
-                    window.location.href = data.data.authorization_url;
-                } else {
-                    alert('Payment initialization failed. Please try again.');
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                }
-            } catch (error) {
-                console.error('Payment Error:', error);
-                alert('Network error. Please check your connection and try again.');
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        // 4. Handle the currency toggle button
-        function setCurrency(currency) {
-            currentCurrency = currency;
-            // Update button styles
-            document.getElementById('btn-ngn').classList.toggle('active', currency === 'NGN');
-            document.getElementById('btn-usd').classList.toggle('active', currency === 'USD');
-            // Re-render the existing data with new currency
-            renderProperties(allProperties); 
-        }
-
-        // 5. Load the properties when the page opens
+        // Load properties on start
         loadProperties();
     </script>
 </body>

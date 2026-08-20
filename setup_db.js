@@ -8,8 +8,17 @@ const pool = new Pool({
     }
 });
 
+// This string holds the SQL to reset and recreate your tables
 const sql = `
-CREATE TABLE IF NOT EXISTS users (
+-- DROP old tables to start fresh
+DROP TABLE IF EXISTS maintenance_subscriptions CASCADE;
+DROP TABLE IF EXISTS inspections CASCADE;
+DROP TABLE IF EXISTS transactions CASCADE;
+DROP TABLE IF EXISTS properties CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- Recreate the tables
+CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -22,7 +31,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS properties (
+CREATE TABLE properties (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -49,7 +58,7 @@ CREATE TABLE IF NOT EXISTS properties (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS transactions (
+CREATE TABLE transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
     buyer_id UUID REFERENCES users(id),
@@ -68,7 +77,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     released_at TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS inspections (
+CREATE TABLE inspections (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
     engineer_id UUID REFERENCES users(id),
@@ -81,7 +90,7 @@ CREATE TABLE IF NOT EXISTS inspections (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS maintenance_subscriptions (
+CREATE TABLE maintenance_subscriptions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
     owner_id UUID REFERENCES users(id),
@@ -99,9 +108,9 @@ CREATE TABLE IF NOT EXISTS maintenance_subscriptions (
 async function setup() {
     try {
         await pool.query(sql);
-        console.log('✅ Tables created successfully on Render Cloud Database!');
+        console.log('✅ Tables wiped and recreated successfully on Render Cloud Database!');
     } catch (err) {
-        console.error('❌ Error creating tables:', err);
+        console.error('❌ Error resetting tables:', err);
     }
     process.exit();
 }
