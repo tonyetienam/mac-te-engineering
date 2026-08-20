@@ -81,7 +81,7 @@
         <div class="filter-btn"><i class="fas fa-sliders-h"></i></div>
     </div>
 
-    <!-- 2. Banner (Click to scroll to products) -->
+    <!-- 2. Banner -->
     <div class="banner" onclick="document.getElementById('productSection').scrollIntoView({behavior:'smooth'})">
         <div class="banner-text">
             <h2>BACK IN<br>STOCK!</h2>
@@ -122,7 +122,7 @@
         <div class="nav-item" onclick="switchTab('account')"><i class="fas fa-user"></i>Account</div>
     </div>
 
-    <!-- 6. Detail Modal (Popup) -->
+    <!-- 6. Detail Modal -->
     <div class="modal-overlay" id="detailModal">
         <div class="modal-content">
             <img class="modal-img" id="modalImg" src="" alt="Product">
@@ -169,7 +169,7 @@
                     <div class="product-info">
                         <h4>${prod.name}</h4>
                         <div class="price">₦${Number(prod.price_ngn).toLocaleString()}</div>
-                        <button class="btn-buy" onclick="event.stopPropagation(); alert('Redirecting to Paystack...')">Buy Now</button>
+                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('${prod.id}')">Buy Now</button>
                     </div>
                 </div>
             `).join('');
@@ -182,13 +182,33 @@
             renderProducts(filtered);
         }
 
-        // 4. Category Filter (Basic simulation)
+        // 4. Category Filter
         function filterByCategory(cat) {
             alert(`Showing all products in category: ${cat}`);
             loadProducts();
         }
 
-        // 5. Modal Logic
+        // 5. Add to Cart Logic
+        async function addToCart(productId) {
+            const userId = "test-user-123"; // Replace with real login later
+            try {
+                const response = await fetch(`${BASE_URL}/api/cart/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, product_id: productId, quantity: 1 })
+                });
+                const data = await response.json();
+                if (data.message) {
+                    alert(`✅ ${data.message}`);
+                } else {
+                    alert('❌ Failed to add item to cart.');
+                }
+            } catch (error) {
+                alert('❌ Network error. Please try again.');
+            }
+        }
+
+        // 6. Modal Logic
         function openModal(id) {
             const prod = allProducts.find(p => p.id === id);
             if (!prod) return;
@@ -197,7 +217,27 @@
             document.getElementById('modalTitle').innerText = prod.name;
             document.getElementById('modalDesc').innerText = prod.description || 'No description available.';
             document.getElementById('modalPrice').innerText = `₦${Number(prod.price_ngn).toLocaleString()}`;
-            document.getElementById('modalBuyBtn').onclick = () => alert('Redirecting to Paystack payment...');
+            
+            // Real Add to Cart inside Modal
+            document.getElementById('modalBuyBtn').onclick = async () => {
+                const userId = "test-user-123";
+                try {
+                    const response = await fetch(`${BASE_URL}/api/cart/add`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: userId, product_id: prod.id, quantity: 1 })
+                    });
+                    const data = await response.json();
+                    if (data.message) {
+                        alert(`✅ ${data.message}! Go to the Cart tab.`);
+                        closeModal();
+                    } else {
+                        alert('❌ Failed to add item to cart.');
+                    }
+                } catch (error) {
+                    alert('❌ Network error.');
+                }
+            };
             
             document.getElementById('detailModal').style.display = 'flex';
         }
@@ -206,23 +246,21 @@
             document.getElementById('detailModal').style.display = 'none';
         }
 
-        // Close modal when clicking outside
         document.getElementById('detailModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
 
-        // 6. Bottom Navigation Tabs
+        // 7. Bottom Nav Tabs
         function switchTab(tabName) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             event.target.closest('.nav-item').classList.add('active');
             
-            if(tabName === 'cart') alert('🛒 Your cart is currently empty.');
+            if(tabName === 'cart') alert('🛒 You have items in your cart!');
             else if(tabName === 'wishlist') alert('❤️ Your wishlist is empty.');
             else if(tabName === 'history') alert('📜 You have no recent orders.');
             else if(tabName === 'account') alert('👤 Please log in to view your account.');
         }
 
-        // Load on start
         loadProducts();
     </script>
 </body>
