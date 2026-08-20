@@ -29,7 +29,7 @@ pool.connect((err) => {
     }
 });
 
-// ------------ API ROUTES ------------
+// ------------ REAL ESTATE API ROUTES ------------
 
 // 1. CREATE A PROPERTY LISTING (POST)
 app.post('/api/properties', async (req, res) => {
@@ -40,7 +40,6 @@ app.post('/api/properties', async (req, res) => {
             year_built, land_size_sqm, bedrooms, bathrooms, images
         } = req.body;
 
-        // Validation
         if (!title || !price_ngn || !price_usd || !address) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
@@ -49,7 +48,6 @@ app.post('/api/properties', async (req, res) => {
             return res.status(400).json({ error: 'Third-party properties require a seller_id' });
         }
 
-        // Insert into database
         const query = `
             INSERT INTO properties (
                 title, description, address, city, state,
@@ -106,6 +104,46 @@ app.get('/api/properties/:id', async (req, res) => {
     }
 });
 
+// ------------ E-COMMERCE API ROUTES ------------
+
+// 1. CREATE A PRODUCT (For Sellers)
+app.post('/api/products', async (req, res) => {
+    try {
+        const { seller_id, category_id, name, description, price_ngn, stock_quantity, main_image } = req.body;
+        
+        const query = `
+            INSERT INTO products (seller_id, category_id, name, description, price_ngn, stock_quantity, main_image)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *;
+        `;
+        
+        const values = [seller_id, category_id, name, description, price_ngn, stock_quantity, main_image];
+        const result = await pool.query(query, values);
+        
+        res.status(201).json({ message: 'Product added successfully', product: result.rows[0] });
+    } catch (error) {
+        console.error('Error creating product:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// 2. GET ALL PRODUCTS (For Customers)
+app.get('/api/products', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT p.*, s.store_name, c.name as category_name 
+            FROM products p
+            LEFT JOIN sellers s ON p.seller_id = s.id
+            LEFT JOIN categories c ON p.category_id = c.id
+            ORDER BY p.created_at DESC
+        `);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // ------------ PAYSTACK PAYMENT INTEGRATION ------------
 
 // 1. INITIATE PAYMENT (POST)
@@ -114,7 +152,7 @@ app.post('/api/pay/initialize', async (req, res) => {
 
     const params = JSON.stringify({
         email: buyer_email,
-        amount: amount_ngn * 100, // Paystack expects kobo (multiply by 100)
+        amount: amount_ngn * 100, // Paystack expects kobo
         currency: "NGN",
         metadata: { property_id, ...metadata },
         callback_url: "https://mac-te-engineering.onrender.com/api/pay/verify"
@@ -169,12 +207,10 @@ app.get('/api/pay/verify', async (req, res) => {
         response.on('end', async () => {
             const result = JSON.parse(data);
             if (result.data && result.data.status === 'success') {
-                // Payment successful! Save to database.
                 try {
                     const { property_id, buyer_id } = result.data.metadata || {};
                     const amount_ngn = result.data.amount / 100;
 
-                    // Insert into transactions table
                     await pool.query(`
                         INSERT INTO transactions 
                         (property_id, buyer_id, amount_ngn, currency_used, payment_method, payment_reference, escrow_status)
@@ -214,5 +250,5 @@ app.listen(PORT, () => {
     console.log(`🚀 Mac-TE Engineering server running on http://localhost:${PORT}`);
 });
 
-// NUCLEAR OPTION: Serve the static HTML file for the root URL
+// Serve the static HTML file for the root URL
 app.use(express.static(__dirname));
