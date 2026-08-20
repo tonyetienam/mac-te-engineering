@@ -144,6 +144,72 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+// 3. ADD TO CART (POST)
+app.post('/api/cart/add', async (req, res) => {
+    const { user_id, product_id, quantity } = req.body;
+
+    try {
+        // 1. Find or create a cart for this user
+        let cartResult = await pool.query('SELECT id FROM cart WHERE user_id = $1', [user_id]);
+        let cart_id;
+
+        if (cartResult.rows.length === 0) {
+            // Create a new cart
+            const newCart = await pool.query('INSERT INTO cart (user_id) VALUES ($1) RETURNING id', [user_id]);
+            cart_id = newCart.rows[0].id;
+        } else {
+            cart_id = cartResult.rows[0].id;
+        }
+
+        // 2. Check if the product is already in the cart
+        const existingItem = await pool.query(
+            'SELECT id, quantity FROM cart_items WHERE cart_id = $1 AND product_id = $2',
+            [cart_id, product_id]
+        );
+
+        if (existingItem.rows.length > 0) {
+            // Update quantity
+            const newQuantity = existingItem.rows[0].quantity + (quantity || 1);
+            await pool.query(
+                'UPDATE cart_items SET quantity = $1 WHERE id = $2',
+                [newQuantity, existingItem.rows[0].id]
+            );
+        } else {
+            // Insert new item
+            await pool.query(
+                'INSERT INTO cart_items (cart_id, product_id, quantity) VALUES ($1, $2, $3)',
+                [cart_id, product_id, quantity || 1]
+            );
+        }
+
+        res.status(200).json({ message: 'Item added to cart successfully', cart_id });
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        res.status(500).json({ error: 'Failed to add item to cart' });
+    }
+});
+
+// 4. GET CART ITEMS (GET)
+app.get('/api/cart/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+
+    try {
+        const result = await pool.query(`
+            SELECT c.id as cart_id, ci.id as item_id, p.id as product_id, 
+                   p.name, p.main_image, p.price_ngn, ci.quantity
+            FROM cart c
+            JOIN cart_items ci ON c.id = ci.cart_id
+            JOIN products p ON ci.product_id = p.id
+            WHERE c.user_id = $1
+        `, [user_id]);
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching cart:', error);
+        res.status(500).json({ error: 'Failed to fetch cart' });
+    }
+});
+
 // ------------ PAYSTACK PAYMENT INTEGRATION ------------
 
 // 1. INITIATE PAYMENT (POST)
