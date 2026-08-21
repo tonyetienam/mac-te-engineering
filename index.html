@@ -8,7 +8,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background-color: #f8f9fa; color: #333; }
-        :root { --primary: #ff6b35; --text-color: #333; --border: #e0e0e0; }
+        :root { --primary: #ff6b35; --border: #e0e0e0; }
 
         /* Auth Screen */
         .auth-container { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
@@ -80,18 +80,15 @@
         .order-card p { font-size: 13px; color: #666; margin-bottom: 8px; }
         .order-card .total { font-size: 16px; font-weight: 700; color: var(--primary); }
 
-        /* Profile Page (MODERN) */
+        /* Profile (Modern) */
         .profile-page { padding: 20px; }
-        
         .profile-card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; text-align: center; }
         .edit-profile-btn { position: absolute; top: 15px; right: 15px; background: #f0f2f5; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #555; }
-        .edit-profile-btn:hover { background: #e0e0e0; }
-        .avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 700; margin: 0 auto 15px; box-shadow: 0 4px 10px rgba(255,107,53,0.3); }
+        .avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 700; margin: 0 auto 15px; }
         .profile-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
         .profile-card p { color: #666; font-size: 14px; }
 
         .section-title { font-size: 18px; font-weight: 700; margin: 20px 0 10px; padding: 0 5px; }
-
         .info-card { background: #fff; border-radius: 12px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); margin-bottom: 15px; }
         .info-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
         .info-row:last-child { border-bottom: none; }
@@ -100,7 +97,7 @@
         .info-value { font-size: 14px; font-weight: 600; color: #333; margin-top: 2px; }
         .edit-address-btn { margin-left: auto; background: transparent; border: none; cursor: pointer; color: #888; font-size: 16px; }
 
-        /* Address Form (Hidden) */
+        /* Address Form (Hidden by default) */
         .address-form-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; display: none; }
         .address-form-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 15px; }
         .address-form-group { margin-bottom: 12px; }
@@ -219,27 +216,15 @@
                 
                 <!-- Profile Card -->
                 <div class="profile-card">
-                    <button class="edit-profile-btn" onclick="showEditProfile()"><i class="fas fa-pen"></i></button>
+                    <button class="edit-profile-btn" onclick="showAddressForm()"><i class="fas fa-pen"></i></button>
                     <div class="avatar" id="profile-avatar">U</div>
                     <h2 id="profile-name">User Name</h2>
                     <p id="profile-email">user@email.com</p>
                 </div>
 
-                <!-- Address Section -->
-                <div class="section-title">Addresses</div>
-                <div id="address-list"></div>
-
-                <!-- Add/Edit Address Form -->
+                <!-- Address Form (Hidden by default) -->
                 <div class="address-form-card" id="address-form-card">
-                    <h4 id="address-form-title">Add New Address</h4>
-                    <div class="address-form-group">
-                        <label>Full Name</label>
-                        <input type="text" id="addr-name" placeholder="e.g. Anthony Etienam">
-                    </div>
-                    <div class="address-form-group">
-                        <label>Phone Number</label>
-                        <input type="text" id="addr-phone" placeholder="e.g. 07065677217">
-                    </div>
+                    <h4>Add New Address</h4>
                     <div class="address-form-group">
                         <label>Country</label>
                         <select id="addr-country">
@@ -271,7 +256,7 @@
                     <button class="save-address-btn" onclick="saveAddress()">Save Address</button>
                 </div>
 
-                <!-- Other Account Info -->
+                <!-- Account Information (Addresses are shown here) -->
                 <div class="section-title">Account Information</div>
                 <div class="info-card">
                     <div class="info-row">
@@ -297,6 +282,8 @@
                     </div>
                 </div>
 
+                <div class="section-title">Saved Addresses</div>
+                <div id="address-list"></div>
             </div>
         </div>
 
@@ -584,28 +571,26 @@
         }
 
         // --- ADDRESSES ---
-        function showEditProfile() {
+        function showAddressForm() {
             const form = document.getElementById('address-form-card');
-            form.style.display = 'block';
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
         }
 
         async function saveAddress() {
-            const full_name = document.getElementById('addr-name').value;
-            const phone = document.getElementById('addr-phone').value;
             const city = document.getElementById('addr-city').value;
             const state = document.getElementById('addr-state').value;
             const country = document.getElementById('addr-country').value;
             const address = document.getElementById('addr-detail').value;
 
-            if (!full_name || !phone || !address) {
-                alert('Please fill in all required fields');
+            if (!city || !address) {
+                alert('Please fill in all fields');
                 return;
             }
 
             try {
                 const response = await fetch(`${BASE_URL}/api/addresses`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: user.id, full_name, phone, address, city, state })
+                    body: JSON.stringify({ user_id: user.id, full_name: user.full_name, phone: user.phone, address, city, state })
                 });
                 const data = await response.json();
                 if (data.message) {
@@ -626,7 +611,7 @@
                 const addresses = await response.json();
                 const list = document.getElementById('address-list');
                 if (addresses.length === 0) {
-                    list.innerHTML = `<button onclick="showEditProfile()" style="background:#f0f2f5; border:none; padding:15px; width:100%; border-radius:12px; font-weight:600; color:#666;">+ Add New Address</button>`;
+                    list.innerHTML = `<button onclick="showAddressForm()" style="background:#f0f2f5; border:none; padding:15px; width:100%; border-radius:12px; font-weight:600; color:#666;">+ Add New Address</button>`;
                     return;
                 }
                 list.innerHTML = addresses.map(addr => `
@@ -634,10 +619,10 @@
                         <div class="info-row">
                             <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
                             <div>
-                                <div class="info-label">${addr.full_name} | ${addr.phone}</div>
-                                <div class="info-value">${addr.address}, ${addr.city}, ${addr.state}</div>
+                                <div class="info-label">${addr.city}, ${addr.state}</div>
+                                <div class="info-value">${addr.address}</div>
                             </div>
-                            <button class="edit-address-btn" onclick="showEditProfile()"><i class="fas fa-pen"></i></button>
+                            <button class="edit-address-btn" onclick="showAddressForm()"><i class="fas fa-pen"></i></button>
                         </div>
                     </div>
                 `).join('');
