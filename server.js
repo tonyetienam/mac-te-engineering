@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const https = require('https');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -65,16 +66,29 @@ const createUsersTable = async () => {
                 password_hash VARCHAR(255) NOT NULL,
                 phone VARCHAR(20),
                 role VARCHAR(20) DEFAULT 'customer',
+                reset_otp VARCHAR(10),
                 created_at TIMESTAMP DEFAULT NOW()
             );
         `);
         
         const columnCheck = await pool.query(`
             SELECT column_name FROM information_schema.columns 
-            WHERE table_name = 'users' AND column_name = 'password_hash'
+            WHERE table_name = 'users' AND column_name = 'reset_otp'
         `);
         
         if (columnCheck.rows.length === 0) {
+            await pool.query(`ALTER TABLE users ADD COLUMN reset_otp VARCHAR(10)`);
+            console.log('✅ Added reset_otp column to users table');
+        } else {
+            console.log('✅ reset_otp column already exists');
+        }
+        
+        const passwordCheck = await pool.query(`
+            SELECT column_name FROM information_schema.columns 
+            WHERE table_name = 'users' AND column_name = 'password_hash'
+        `);
+        
+        if (passwordCheck.rows.length === 0) {
             await pool.query(`ALTER TABLE users ADD COLUMN password_hash VARCHAR(255) NOT NULL DEFAULT 'temp_password'`);
             console.log('✅ Added password_hash column to users table');
         } else {
@@ -89,6 +103,8 @@ createUsersTable();
 
 // ------------ AUTHENTICATION ROUTES ------------
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key-123';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'your-google-client-id.apps.googleusercontent.com';
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // 1. REGISTER (POST)
 app.post('/api/auth/register', async (req, res) => {
@@ -180,6 +196,97 @@ app.get('/api/auth/profile', authenticate, async (req, res) => {
         res.json(result.rows[0]);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch profile' });
+    }
+});
+
+// ------------ ADVANCED AUTH FEATURES ------------
+
+// 1. FORGET PASSWORD (REQUEST OTP)
+app.post('/api/auth/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (user.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+        await pool.query('UPDATE users SET reset_otp = $1 WHERE email = $2', [otp, email]);
+
+        // TODO: Send OTP to user's phone via WhatsApp/SMS (Termii/Twilio API)
+        res.json({ message: 'OTP sent to your phone', otp }); // For testing, OTP is returned
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to process request' });
+    }
+});
+
+// 2. VERIFY OTP & RESET PASSWORD
+app.post('/api/auth/reset-password', async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+    try {
+        const user = await pool.query('SELECT * FROM users WHERE email = $1 AND reset_otp = $2', [email, otp]);
+        if (user.rows.length === 0) return res.status(400).json({ error: 'Invalid OTP' });
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await pool.query('UPDATE users SET password_hash = $1, reset_otp = NULL WHERE email = $2', [hashedPassword, email]);
+        res.json({ message: 'Password reset successful' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to reset password' });
+    }
+});
+
+// 3. GOOGLE LOGIN
+app.post('/api/auth/google-login', async (req, res) => {
+    const { tokenId } = req.body;
+    try {
+        const ticket = await client.verifyIdToken({ idToken: tokenId, audience: GOOGLE_CLIENT_ID });
+        const { email, name, picture } = ticket.getPayload();
+
+        let user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (user.rows.length === 0) {
+            const newUser = await pool.query(
+                `INSERT INTO users (full_name, email, password_hash, role) VALUES ($1, $2, $3, 'customer') RETURNING id, full_name, email, role`,
+                [name, email, 'google_oauth_user']
+            );
+            user = newUser;
+        }
+
+        const token = jwt.sign({ id: user.rows[0].id, email: user.rows[0].email, role: user.rows[0].role }, JWT_SECRET, { expiresIn: '7d' });
+        res.json({ message: 'Google Login successful', user: user.rows[0], token });
+    } catch (error) {
+        res.status(400).json({ error: 'Invalid Google Token' });
+    }
+});
+
+// 4. VERIFY PHONE OTP (For SMS/WhatsApp)
+app.post('/api/auth/verify-otp', async (req, res) => {
+    const { email, otp } = req.body;
+    try {
+        const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (user.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+
+        if (user.rows[0].reset_otp !== otp) return res.status(400).json({ error: 'Invalid OTP' });
+
+        await pool.query('UPDATE users SET reset_otp = NULL WHERE email = $1', [email]);
+        res.json({ message: 'Phone verified successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to verify OTP' });
+    }
+});
+
+// 5. GET ORDER DETAILS (For viewing full order description)
+app.get('/api/orders/details/:order_id', async (req, res) => {
+    const { order_id } = req.params;
+    try {
+        const result = await pool.query(`
+            SELECT o.id, o.total_amount, o.status, o.created_at, o.shipping_address,
+                   oi.quantity, oi.price_at_purchase, p.name, p.main_image
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE o.id = $1
+        `, [order_id]);
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch order details' });
     }
 });
 
@@ -368,31 +475,34 @@ app.get('/api/cart/:user_id', async (req, res) => {
     }
 });
 
-// 5. DELETE A PRODUCT (For Admin/Seller)
-app.delete('/api/products/:id', async (req, res) => {
-    const { id } = req.params;
+// 5. UPDATE CART ITEM QUANTITY (POST)
+app.post('/api/cart/update', async (req, res) => {
+    const { item_id, quantity } = req.body;
+
     try {
-        await pool.query('DELETE FROM products WHERE id = $1', [id]);
-        res.json({ message: 'Product deleted successfully' });
+        if (quantity <= 0) {
+            await pool.query('DELETE FROM cart_items WHERE id = $1', [item_id]);
+            return res.json({ message: 'Item removed from cart' });
+        }
+
+        await pool.query('UPDATE cart_items SET quantity = $1 WHERE id = $2', [quantity, item_id]);
+        res.json({ message: 'Quantity updated successfully' });
     } catch (error) {
-        console.error('Error deleting product:', error);
-        res.status(500).json({ error: 'Failed to delete product' });
+        console.error('Error updating cart item:', error);
+        res.status(500).json({ error: 'Failed to update cart item' });
     }
 });
 
-// 6. GET ALL ORDERS (For Admin)
-app.get('/api/admin/orders', async (req, res) => {
+// 6. REMOVE ITEM FROM CART (DELETE)
+app.delete('/api/cart/remove/:item_id', async (req, res) => {
+    const { item_id } = req.params;
+
     try {
-        const result = await pool.query(`
-            SELECT o.id, o.total_amount, o.status, o.created_at, u.full_name, u.email 
-            FROM orders o
-            JOIN users u ON o.user_id = u.id
-            ORDER BY o.created_at DESC
-        `);
-        res.json(result.rows);
+        await pool.query('DELETE FROM cart_items WHERE id = $1', [item_id]);
+        res.json({ message: 'Item removed from cart successfully' });
     } catch (error) {
-        console.error('Error fetching orders:', error);
-        res.status(500).json({ error: 'Failed to fetch orders' });
+        console.error('Error removing cart item:', error);
+        res.status(500).json({ error: 'Failed to remove item' });
     }
 });
 
@@ -426,6 +536,24 @@ app.get('/api/orders/:user_id', async (req, res) => {
     } catch (error) {
         console.error('Error fetching orders:', error);
         res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+});
+
+// 3. GET ORDER DETAILS (For viewing full order description)
+app.get('/api/orders/details/:order_id', async (req, res) => {
+    const { order_id } = req.params;
+    try {
+        const result = await pool.query(`
+            SELECT o.id, o.total_amount, o.status, o.created_at, o.shipping_address,
+                   oi.quantity, oi.price_at_purchase, p.name, p.main_image
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE o.id = $1
+        `, [order_id]);
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch order details' });
     }
 });
 
