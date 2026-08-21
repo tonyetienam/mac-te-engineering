@@ -54,6 +54,41 @@ const createCartTables = async () => {
 };
 createCartTables();
 
+// AUTO-CREATE/UPDATE USERS TABLE ON SERVER STARTUP
+const createUsersTable = async () => {
+    try {
+        // 1. Create the table if it doesn't exist
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                full_name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
+                phone VARCHAR(20),
+                role VARCHAR(20) DEFAULT 'customer',
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+        `);
+        
+        // 2. CHECK IF THE COLUMN 'password_hash' EXISTS - IF NOT, ADD IT!
+        const columnCheck = await pool.query(`
+            SELECT column_name FROM information_schema.columns 
+            WHERE table_name = 'users' AND column_name = 'password_hash'
+        `);
+        
+        if (columnCheck.rows.length === 0) {
+            await pool.query(`ALTER TABLE users ADD COLUMN password_hash VARCHAR(255) NOT NULL DEFAULT 'temp_password'`);
+            console.log('✅ Added password_hash column to users table');
+        } else {
+            console.log('✅ password_hash column already exists');
+        }
+        
+    } catch (err) {
+        console.error('Error creating/updating users table:', err);
+    }
+};
+createUsersTable();
+
 // ------------ AUTHENTICATION ROUTES ------------
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key-123';
 
