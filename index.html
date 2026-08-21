@@ -191,6 +191,14 @@
         let allProducts = [];
         let cartItems = [];
 
+        // --- FIX BROKEN IMAGES (Force fallback) ---
+        function getProductImage(url) {
+            if (url && url.trim() !== '' && url.includes('http') && !url.includes('example.com')) {
+                return url;
+            }
+            return 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg';
+        }
+
         // --- AUTH ---
         async function register() {
             const full_name = document.getElementById('reg-name').value;
@@ -337,9 +345,7 @@
                 if (cartItems.length === 0) { cartList.innerHTML = `<div style="text-align:center; color:#999;">Your cart is empty.</div>`; document.getElementById('cart-summary').style.display = 'none'; return; }
                 cartList.innerHTML = cartItems.map(item => `
                     <div class="cart-item">
-                        ${getProductImage(item.main_image) !== null 
-                            ? `<img src="${item.main_image}" alt="${item.name}" style="width:80px;height:80px;border-radius:8px;object-fit:cover;">` 
-                            : `<div style="width:80px;height:80px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:24px;color:#ccc;"><i class="fas fa-box"></i></div>`}
+                        <img src="${getProductImage(item.main_image)}" alt="${item.name}" style="width:80px;height:80px;border-radius:8px;object-fit:cover;">
                         <div class="cart-item-details">
                             <h4>${item.name}</h4>
                             <div class="price" style="color:var(--primary); font-weight:700;">₦${Number(item.price_ngn).toLocaleString()}</div>
@@ -359,14 +365,6 @@
                 document.getElementById('total').innerText = `₦${(subtotal + 2500).toLocaleString()}`;
                 document.getElementById('cart-summary').style.display = 'block';
             } catch (error) { console.error(error); }
-        }
-
-        // --- FIX BROKEN IMAGES (Force fallback) ---
-        function getProductImage(url) {
-            if (url && url.trim() !== '' && url.includes('http') && !url.includes('example.com')) {
-                return url;
-            }
-            return null;
         }
 
         // --- UPDATE QUANTITY (Real API call) ---
