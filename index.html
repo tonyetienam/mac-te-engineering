@@ -10,7 +10,7 @@
         body { background-color: #f5f5f5; color: #333; }
         :root { --primary: #ff6b35; }
 
-        /* --- Auth Screen --- */
+        /* Auth Screen */
         .auth-container { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
         .auth-box { background: #fff; border-radius: 20px; padding: 30px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .auth-logo { text-align: center; margin-bottom: 20px; }
@@ -20,32 +20,40 @@
         .input-group { display: flex; flex-direction: column; }
         .input-group label { font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #666; }
         .input-group input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
-        .input-group input:focus { border-color: var(--primary); }
         .auth-btn { background: var(--primary); color: #fff; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; }
+        .google-btn { background: #fff; border: 1px solid #ddd; color: #333; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 10px; }
+        .google-btn img { width: 20px; }
         .auth-switch { text-align: center; margin-top: 15px; font-size: 13px; color: #666; }
         .auth-switch span { color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: underline; }
 
-        /* --- Main App --- */
+        /* Main App */
         #main-app { display: none; padding-bottom: 80px; }
         .header { background: #fff; padding: 15px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .logout-btn { background: #ffefef; color: #ff4757; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
-        
         .search-bar { flex: 1; background: #f0f2f5; padding: 10px 15px; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
         .search-bar input { border: none; background: transparent; width: 100%; outline: none; font-size: 14px; }
-        
         .banner { margin: 12px; border-radius: 12px; overflow: hidden; background: #ffdcd2; padding: 20px; display: flex; justify-content: space-between; align-items: center; color: #8b3a1a; }
         .banner img { height: 100px; mix-blend-mode: multiply; }
-        
         .section-header { display: flex; justify-content: space-between; padding: 0 15px; margin: 15px 0 10px; align-items: center; }
         .section-header h3 { font-size: 16px; font-weight: 700; }
-        
         .category-scroll { display: flex; overflow-x: auto; padding: 0 15px; gap: 15px; }
         .category-scroll::-webkit-scrollbar { display: none; }
         .category-item { min-width: 80px; background: #fff; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
-        
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 12px 15px; }
         .product-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
-        
+
+        /* Product Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #fff; border-radius: 15px; max-width: 400px; width: 100%; overflow: hidden; }
+        .modal-img { width: 100%; height: 200px; object-fit: cover; }
+        .modal-body { padding: 20px; }
+        .modal-body h2 { font-size: 18px; margin-bottom: 5px; }
+        .modal-body p { color: #666; font-size: 14px; margin-bottom: 10px; line-height: 1.5; }
+        .modal-body .price { font-size: 20px; font-weight: 700; color: var(--primary); }
+        .btn-modal { background: var(--primary); color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        .btn-close { background: #e5e5e5; color: #333; border: none; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+
+        /* Cart */
         .cart-list { padding: 0 15px; }
         .cart-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 12px; display: flex; gap: 12px; align-items: center; }
         .cart-item img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
@@ -56,13 +64,12 @@
         .qty-btn { background: #f0f2f5; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-weight: 600; }
         .qty-display { font-size: 14px; font-weight: 600; }
         .remove-btn { background: #ffefef; color: #ff4757; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600; }
-        
         .cart-summary { background: #fff; margin: 0 15px 15px; padding: 15px; border-radius: 12px; }
         .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
         .summary-row.total { font-size: 18px; font-weight: 700; border-top: 1px solid #eee; padding-top: 10px; }
         .checkout-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
 
-        /* --- Profile Page --- */
+        /* Profile */
         .profile-page { padding: 20px; }
         .profile-card { background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; margin-bottom: 20px; }
         .avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; margin: 0 auto 15px; }
@@ -73,23 +80,29 @@
         .detail-row:last-child { border-bottom: none; }
         .detail-label { font-weight: 600; color: #666; }
         .detail-value { color: #333; }
-        .btn-danger { background: #ffefef; color: #ff4757; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 20px; }
 
-        /* --- Bottom Nav --- */
+        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 8px 0 16px; border-top: 1px solid #e5e5e5; z-index: 100; }
         .nav-item { text-align: center; color: #999; font-size: 10px; cursor: pointer; }
         .nav-item.active { color: var(--primary); }
+
+        /* Error/Success Messages */
+        .message-box { padding: 15px; border-radius: 8px; margin-top: 15px; text-align: center; font-weight: 600; display: none; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
     </style>
 </head>
 <body>
 
-    <!-- Auth Screen -->
+    <!-- Auth Screen (Login, Register, Forgot Password, Google) -->
     <div id="auth-screen" class="auth-container">
         <div class="auth-box">
             <div class="auth-logo">
                 <h1>Mac-TE <span>Engineering</span></h1>
                 <p style="color:#888; font-size:13px; margin-top:5px;">Sign in to start shopping</p>
             </div>
+
+            <!-- Login Form -->
             <div id="login-form" class="auth-form">
                 <div class="input-group">
                     <label>Email Address</label>
@@ -100,8 +113,16 @@
                     <input type="password" id="login-password" placeholder="Enter your password">
                 </div>
                 <button class="auth-btn" onclick="login()">Login</button>
+                <p class="auth-switch">Forgot Password? <span onclick="showForgot()">Reset here</span></p>
+                <div style="text-align:center; margin:10px 0; color:#ccc;">- OR -</div>
+                <button class="google-btn" onclick="googleLogin()">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Continue with Google
+                </button>
                 <p class="auth-switch">Don't have an account? <span onclick="showRegister()">Register here</span></p>
+                <div id="login-msg" class="message-box"></div>
             </div>
+
+            <!-- Register Form -->
             <div id="register-form" class="auth-form" style="display:none;">
                 <div class="input-group">
                     <label>Full Name</label>
@@ -121,6 +142,30 @@
                 </div>
                 <button class="auth-btn" onclick="register()">Register</button>
                 <p class="auth-switch">Already have an account? <span onclick="showLogin()">Login here</span></p>
+                <div id="reg-msg" class="message-box"></div>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="forgot-form" class="auth-form" style="display:none;">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="forgot-email" placeholder="Enter your registered email">
+                </div>
+                <button class="auth-btn" onclick="forgotPassword()">Send OTP</button>
+                <p class="auth-switch">Remember your password? <span onclick="showLogin()">Login here</span></p>
+            </div>
+
+            <!-- OTP Form (After Forgot Password) -->
+            <div id="otp-form" class="auth-form" style="display:none;">
+                <div class="input-group">
+                    <label>Enter 6-Digit OTP</label>
+                    <input type="text" id="otp" placeholder="Enter OTP sent to SMS/WhatsApp">
+                </div>
+                <div class="input-group">
+                    <label>New Password</label>
+                    <input type="password" id="new-password" placeholder="Enter new password">
+                </div>
+                <button class="auth-btn" onclick="resetPassword()">Reset Password</button>
             </div>
         </div>
     </div>
@@ -173,7 +218,6 @@
                     <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value" id="profile-phone">-</span></div>
                     <div class="detail-row"><span class="detail-label">Role</span><span class="detail-value" id="profile-role">Customer</span></div>
                 </div>
-                <button class="btn-danger" onclick="logout()">Logout</button>
             </div>
         </div>
 
@@ -184,14 +228,29 @@
         </div>
     </div>
 
+    <!-- Product Detail Modal -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal-content">
+            <img class="modal-img" id="modalImg" src="" alt="Product">
+            <div class="modal-body">
+                <h2 id="modalTitle">Product</h2>
+                <p id="modalDesc">Description</p>
+                <p class="price" id="modalPrice">₦0.00</p>
+                <button class="btn-modal" onclick="addToCartFromModal()">Buy Now</button>
+                <button class="btn-close" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const BASE_URL = 'https://mac-te-engineering.onrender.com';
         let token = localStorage.getItem('token');
         let user = JSON.parse(localStorage.getItem('user'));
         let allProducts = [];
         let cartItems = [];
+        let selectedProductId = null;
 
-        // --- FIX BROKEN IMAGES (Force fallback) ---
+        // --- FIX BROKEN IMAGES ---
         function getProductImage(url) {
             if (url && url.trim() !== '' && url.includes('http') && !url.includes('example.com')) {
                 return url;
@@ -200,69 +259,120 @@
         }
 
         // --- AUTH ---
+        function showLogin() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('forgot-form').style.display = 'none';
+            document.getElementById('otp-form').style.display = 'none';
+        }
+        function showRegister() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+            document.getElementById('forgot-form').style.display = 'none';
+            document.getElementById('otp-form').style.display = 'none';
+        }
+        function showForgot() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('forgot-form').style.display = 'block';
+            document.getElementById('otp-form').style.display = 'none';
+        }
+        function showOTP() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('forgot-form').style.display = 'none';
+            document.getElementById('otp-form').style.display = 'block';
+        }
+
         async function register() {
             const full_name = document.getElementById('reg-name').value;
             const email = document.getElementById('reg-email').value;
             const phone = document.getElementById('reg-phone').value;
             const password = document.getElementById('reg-password').value;
+            const msg = document.getElementById('reg-msg');
 
             try {
                 const response = await fetch(`${BASE_URL}/api/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ full_name, email, phone, password })
                 });
                 const data = await response.json();
                 if (data.token) {
-                    token = data.token;
-                    user = data.user;
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('user', JSON.stringify(user));
+                    token = data.token; user = data.user;
+                    localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user));
                     showApp();
                 } else {
-                    alert(data.error || 'Registration failed');
+                    msg.style.display = 'block'; msg.className = 'message-box error'; msg.innerText = data.error;
                 }
-            } catch (error) {
-                alert('Network error. Try again.');
-            }
+            } catch (error) { console.error(error); }
         }
 
         async function login() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
+            const msg = document.getElementById('login-msg');
 
             try {
                 const response = await fetch(`${BASE_URL}/api/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
                 const data = await response.json();
                 if (data.token) {
-                    token = data.token;
-                    user = data.user;
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('user', JSON.stringify(user));
+                    token = data.token; user = data.user;
+                    localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user));
                     showApp();
                 } else {
-                    alert(data.error || 'Login failed');
+                    msg.style.display = 'block'; msg.className = 'message-box error'; msg.innerText = data.error;
                 }
-            } catch (error) {
-                alert('Network error. Try again.');
-            }
+            } catch (error) { console.error(error); }
+        }
+
+        async function forgotPassword() {
+            const email = document.getElementById('forgot-email').value;
+            try {
+                const response = await fetch(`${BASE_URL}/api/auth/forgot-password`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                if (data.message) {
+                    alert(`OTP sent: ${data.otp}`); // For demo, we show OTP
+                    showOTP();
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        async function resetPassword() {
+            const email = document.getElementById('forgot-email').value;
+            const otp = document.getElementById('otp').value;
+            const newPassword = document.getElementById('new-password').value;
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/auth/reset-password`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp, newPassword })
+                });
+                const data = await response.json();
+                if (data.message) { alert('Password reset successful. Please login.'); showLogin(); }
+            } catch (error) { console.error(error); }
+        }
+
+        // Google Login (Placeholder - Will work once Google Client ID is added)
+        function googleLogin() {
+            alert('Google Sign-In will work once you add your Google Client ID in the .env file and server.js. This is a secure feature that requires a paid API key.');
         }
 
         function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            token = null;
-            user = null;
+            localStorage.removeItem('token'); localStorage.removeItem('user');
+            token = null; user = null;
             showAuth();
         }
 
         function showAuth() {
             document.getElementById('auth-screen').style.display = 'flex';
             document.getElementById('main-app').style.display = 'none';
+            showLogin();
         }
 
         function showApp() {
@@ -271,22 +381,8 @@
             loadProducts();
         }
 
-        function showRegister() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('register-form').style.display = 'flex';
-        }
-
-        function showLogin() {
-            document.getElementById('login-form').style.display = 'flex';
-            document.getElementById('register-form').style.display = 'none';
-        }
-
-        // --- CHECK SESSION ON LOAD ---
-        if (token && user) {
-            showApp();
-        } else {
-            showAuth();
-        }
+        // --- CHECK SESSION ---
+        if (token && user) { showApp(); } else { showAuth(); }
 
         // --- SHOP ---
         async function loadProducts() {
@@ -294,9 +390,7 @@
                 const response = await fetch(`${BASE_URL}/api/products`);
                 allProducts = await response.json();
                 renderProducts(allProducts);
-            } catch (error) {
-                console.error(error);
-            }
+            } catch (error) { console.error(error); }
         }
 
         function renderProducts(data) {
@@ -306,26 +400,48 @@
                 return;
             }
             grid.innerHTML = data.map(prod => `
-                <div class="product-card">
+                <div class="product-card" onclick="openProductModal('${prod.id}')">
                     <div class="product-img">
-                        ${prod.main_image && prod.main_image.trim() !== '' 
-                            ? `<img src="${prod.main_image}" style="width:100%;height:140px;object-fit:cover;" alt="Product">` 
-                            : `<div style="width:100%;height:140px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:30px;color:#ccc;"><i class="fas fa-box"></i></div>`}
+                        <img src="${getProductImage(prod.main_image)}" style="width:100%;height:140px;object-fit:cover;" alt="Product">
                     </div>
                     <div class="product-info">
                         <h4 style="font-size:13px; padding:8px 10px 0;">${prod.name}</h4>
                         <div class="price" style="font-weight:700; padding:4px 10px;">₦${Number(prod.price_ngn).toLocaleString()}</div>
-                        <button style="background:var(--primary); color:white; border:none; padding:8px; width:90%; margin:10px auto; display:block; border-radius:6px; cursor:pointer;" onclick="addToCart('${prod.id}')">Buy Now</button>
+                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('${prod.id}')" style="background:var(--primary); color:white; border:none; padding:8px; width:90%; margin:10px auto; display:block; border-radius:6px; cursor:pointer;">Buy Now</button>
                     </div>
                 </div>
             `).join('');
         }
 
+        // --- PRODUCT DETAIL MODAL ---
+        function openProductModal(productId) {
+            const prod = allProducts.find(p => p.id === productId);
+            if (!prod) return;
+            selectedProductId = productId;
+            document.getElementById('modalImg').src = getProductImage(prod.main_image);
+            document.getElementById('modalTitle').innerText = prod.name;
+            document.getElementById('modalDesc').innerText = prod.description || 'No description available';
+            document.getElementById('modalPrice').innerText = `₦${Number(prod.price_ngn).toLocaleString()}`;
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').style.display = 'none';
+            selectedProductId = null;
+        }
+
+        function addToCartFromModal() {
+            if (selectedProductId) {
+                addToCart(selectedProductId);
+                closeModal();
+            }
+        }
+
+        // --- CART ---
         async function addToCart(productId) {
             try {
                 const response = await fetch(`${BASE_URL}/api/cart/add`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ user_id: user.id, product_id: productId, quantity: 1 })
                 });
                 const data = await response.json();
@@ -334,12 +450,9 @@
             } catch (error) { alert('❌ Network error.'); }
         }
 
-        // --- CART ---
         async function loadCart() {
             try {
-                const response = await fetch(`${BASE_URL}/api/cart/${user.id}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const response = await fetch(`${BASE_URL}/api/cart/${user.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
                 cartItems = await response.json();
                 const cartList = document.getElementById('cart-list');
                 if (cartItems.length === 0) { cartList.innerHTML = `<div style="text-align:center; color:#999;">Your cart is empty.</div>`; document.getElementById('cart-summary').style.display = 'none'; return; }
@@ -367,42 +480,24 @@
             } catch (error) { console.error(error); }
         }
 
-        // --- UPDATE QUANTITY (Real API call) ---
         async function updateQty(itemId, qty) {
-            if (qty < 1) {
-                await removeItem(itemId);
-                return;
-            }
-
+            if (qty < 1) { await removeItem(itemId); return; }
             try {
                 const response = await fetch(`${BASE_URL}/api/cart/update`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ item_id: itemId, quantity: qty })
                 });
                 const data = await response.json();
-                if (data.message) {
-                    loadCart();
-                }
-            } catch (error) {
-                alert('Network error.');
-            }
+                if (data.message) loadCart();
+            } catch (error) { alert('Network error.'); }
         }
 
-        // --- REMOVE ITEM (Real API call) ---
         async function removeItem(itemId) {
             try {
-                const response = await fetch(`${BASE_URL}/api/cart/remove/${itemId}`, {
-                    method: 'DELETE'
-                });
+                const response = await fetch(`${BASE_URL}/api/cart/remove/${itemId}`, { method: 'DELETE' });
                 const data = await response.json();
-                if (data.message) {
-                    alert('✅ Item removed!');
-                    loadCart();
-                }
-            } catch (error) {
-                alert('Network error.');
-            }
+                if (data.message) { alert('✅ Item removed!'); loadCart(); }
+            } catch (error) { alert('Network error.'); }
         }
 
         // --- CHECKOUT ---
@@ -411,8 +506,7 @@
             const email = user.email;
             try {
                 const response = await fetch(`${BASE_URL}/api/pay/initialize`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ property_id: null, buyer_email: email, amount_ngn: parseInt(total), metadata: { user_id: user.id } })
                 });
                 const data = await response.json();
