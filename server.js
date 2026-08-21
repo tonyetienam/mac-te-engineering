@@ -4,6 +4,8 @@ const { Pool } = require('pg');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const https = require('https');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,7 +37,7 @@ const createCartTables = async () => {
         await pool.query(`
             CREATE TABLE IF NOT EXISTS cart (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                user_id UUID NOT NULL,
+                user_id TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT NOW()
             );
             CREATE TABLE IF NOT EXISTS cart_items (
@@ -51,6 +53,102 @@ const createCartTables = async () => {
     }
 };
 createCartTables();
+
+// ------------ AUTHENTICATION ROUTES ------------
+const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key-123';
+
+// 1. REGISTER (POST)
+app.post('/api/auth/register', async (req, res) => {
+    const { full_name, email, phone, password } = req.body;
+
+    if (!full_name || !email || !password) {
+        return res.status(400).json({ error: 'Please fill all required fields' });
+    }
+
+    try {
+        const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (existingUser.rows.length > 0) {
+            return res.status(400).json({ error: 'User with this email already exists' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const result = await pool.query(
+            `INSERT INTO users (full_name, email, phone, password_hash, role) 
+             VALUES ($1, $2, $3, $4, 'customer') 
+             RETURNING id, full_name, email, role`,
+            [full_name, email, phone || '', hashedPassword]
+        );
+
+        const token = jwt.sign(
+            { id: result.rows[0].id, email: result.rows[0].email, role: result.rows[0].role },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        res.status(201).json({ message: 'User registered successfully', user: result.rows[0], token });
+    } catch (error) {
+        console.error('Error registering user:', error);
+        res.status(500).json({ error: 'Failed to register user' });
+    }
+});
+
+// 2. LOGIN (POST)
+app.post('/api/auth/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Please provide email and password' });
+    }
+
+    try {
+        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const isValidPassword = await bcrypt.compare(password, result.rows[0].password_hash);
+        if (!isValidPassword) {
+            return res.status(401).json({ error: 'Invalid password' });
+        }
+
+        const token = jwt.sign(
+            { id: result.rows[0].id, email: result.rows[0].email, role: result.rows[0].role },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        res.json({ message: 'Login successful', user: { id: result.rows[0].id, full_name: result.rows[0].full_name, email: result.rows[0].email }, token });
+    } catch (error) {
+        console.error('Error logging in:', error);
+        res.status(500).json({ error: 'Failed to login' });
+    }
+});
+
+// 3. GET USER PROFILE (GET) - Protected Route
+const authenticate = (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (!token) return res.status(401).json({ error: 'No token provided' });
+
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err) return res.status(403).json({ error: 'Invalid token' });
+        req.user = decoded;
+        next();
+    });
+};
+
+app.get('/api/auth/profile', authenticate, async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT id, full_name, email, phone, created_at FROM users WHERE id = $1`,
+            [req.user.id]
+        );
+        if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch profile' });
+    }
+});
 
 // ------------ REAL ESTATE API ROUTES ------------
 
@@ -172,42 +270,35 @@ app.post('/api/cart/add', async (req, res) => {
     const { user_id, product_id, quantity } = req.body;
 
     try {
-        // 0. Check if the product actually exists in the database first!
         const productCheck = await pool.query('SELECT id FROM products WHERE id = $1', [product_id]);
         if (productCheck.rows.length === 0) {
             return res.status(404).json({ error: 'Product not found. Please check the product ID.' });
         }
 
-        // Convert test string into a valid UUID to avoid database errors
         const validUserId = user_id === "test-user-123" ? "00000000-0000-0000-0000-000000000001" : user_id;
 
-        // 1. Find or create a cart for this user
         let cartResult = await pool.query('SELECT id FROM cart WHERE user_id = $1', [validUserId]);
         let cart_id;
 
         if (cartResult.rows.length === 0) {
-            // Create a new cart
             const newCart = await pool.query('INSERT INTO cart (user_id) VALUES ($1) RETURNING id', [validUserId]);
             cart_id = newCart.rows[0].id;
         } else {
             cart_id = cartResult.rows[0].id;
         }
 
-        // 2. Check if the product is already in the cart
         const existingItem = await pool.query(
             'SELECT id, quantity FROM cart_items WHERE cart_id = $1 AND product_id = $2',
             [cart_id, product_id]
         );
 
         if (existingItem.rows.length > 0) {
-            // Update quantity
             const newQuantity = existingItem.rows[0].quantity + (quantity || 1);
             await pool.query(
                 'UPDATE cart_items SET quantity = $1 WHERE id = $2',
                 [newQuantity, existingItem.rows[0].id]
             );
         } else {
-            // Insert new item
             await pool.query(
                 'INSERT INTO cart_items (cart_id, product_id, quantity) VALUES ($1, $2, $3)',
                 [cart_id, product_id, quantity || 1]
@@ -226,7 +317,6 @@ app.get('/api/cart/:user_id', async (req, res) => {
     const { user_id } = req.params;
 
     try {
-        // Convert test string into a valid UUID
         const validUserId = user_id === "test-user-123" ? "00000000-0000-0000-0000-000000000001" : user_id;
 
         const result = await pool.query(`
@@ -245,6 +335,39 @@ app.get('/api/cart/:user_id', async (req, res) => {
     }
 });
 
+// ------------ CHECKOUT & ORDER ROUTES ------------
+
+// 1. CREATE ORDER (POST)
+app.post('/api/orders', async (req, res) => {
+    const { user_id, total_amount, shipping_address } = req.body;
+
+    try {
+        const validUserId = user_id === "test-user-123" ? "00000000-0000-0000-0000-000000000001" : user_id;
+        const result = await pool.query(
+            'INSERT INTO orders (user_id, total_amount, status, shipping_address) VALUES ($1, $2, $3, $4) RETURNING *',
+            [validUserId, total_amount, 'pending', shipping_address]
+        );
+        res.status(201).json({ message: 'Order created successfully', order: result.rows[0] });
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ error: 'Failed to create order' });
+    }
+});
+
+// 2. GET USER ORDERS (GET)
+app.get('/api/orders/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+
+    try {
+        const validUserId = user_id === "test-user-123" ? "00000000-0000-0000-0000-000000000001" : user_id;
+        const result = await pool.query('SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC', [validUserId]);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+});
+
 // ------------ PAYSTACK PAYMENT INTEGRATION ------------
 
 // 1. INITIATE PAYMENT (POST)
@@ -253,7 +376,7 @@ app.post('/api/pay/initialize', async (req, res) => {
 
     const params = JSON.stringify({
         email: buyer_email,
-        amount: amount_ngn * 100, // Paystack expects kobo
+        amount: amount_ngn * 100,
         currency: "NGN",
         metadata: { property_id, ...metadata },
         callback_url: "https://mac-te-engineering.onrender.com/api/pay/verify"
