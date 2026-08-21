@@ -29,6 +29,29 @@ pool.connect((err) => {
     }
 });
 
+// AUTO-CREATE CART TABLES ON SERVER STARTUP
+const createCartTables = async () => {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS cart (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                user_id UUID NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+            CREATE TABLE IF NOT EXISTS cart_items (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                cart_id UUID REFERENCES cart(id) ON DELETE CASCADE,
+                product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+                quantity INT DEFAULT 1
+            );
+        `);
+        console.log('✅ Cart tables ensured in database');
+    } catch (err) {
+        console.error('Error creating cart tables:', err);
+    }
+};
+createCartTables();
+
 // ------------ REAL ESTATE API ROUTES ------------
 
 // 1. CREATE A PROPERTY LISTING (POST)
