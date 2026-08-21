@@ -337,7 +337,7 @@
                 if (cartItems.length === 0) { cartList.innerHTML = `<div style="text-align:center; color:#999;">Your cart is empty.</div>`; document.getElementById('cart-summary').style.display = 'none'; return; }
                 cartList.innerHTML = cartItems.map(item => `
                     <div class="cart-item">
-                        ${item.main_image && item.main_image.trim() !== '' 
+                        ${getProductImage(item.main_image) !== null 
                             ? `<img src="${item.main_image}" alt="${item.name}" style="width:80px;height:80px;border-radius:8px;object-fit:cover;">` 
                             : `<div style="width:80px;height:80px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:24px;color:#ccc;"><i class="fas fa-box"></i></div>`}
                         <div class="cart-item-details">
@@ -359,6 +359,52 @@
                 document.getElementById('total').innerText = `₦${(subtotal + 2500).toLocaleString()}`;
                 document.getElementById('cart-summary').style.display = 'block';
             } catch (error) { console.error(error); }
+        }
+
+        // --- FIX BROKEN IMAGES (Force fallback) ---
+        function getProductImage(url) {
+            if (url && url.trim() !== '' && url.includes('http') && !url.includes('example.com')) {
+                return url;
+            }
+            return null;
+        }
+
+        // --- UPDATE QUANTITY (Real API call) ---
+        async function updateQty(itemId, qty) {
+            if (qty < 1) {
+                await removeItem(itemId);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/cart/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ item_id: itemId, quantity: qty })
+                });
+                const data = await response.json();
+                if (data.message) {
+                    loadCart();
+                }
+            } catch (error) {
+                alert('Network error.');
+            }
+        }
+
+        // --- REMOVE ITEM (Real API call) ---
+        async function removeItem(itemId) {
+            try {
+                const response = await fetch(`${BASE_URL}/api/cart/remove/${itemId}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                if (data.message) {
+                    alert('✅ Item removed!');
+                    loadCart();
+                }
+            } catch (error) {
+                alert('Network error.');
+            }
         }
 
         // --- CHECKOUT ---
