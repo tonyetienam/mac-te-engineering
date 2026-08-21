@@ -590,7 +590,7 @@
             try {
                 const response = await fetch(`${BASE_URL}/api/addresses`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: user.id, full_name: user.full_name, phone: user.phone, address, city, state })
+                    body: JSON.stringify({ user_id: user.id, full_name: user.full_name, phone: user.phone, address, city, state, country })
                 });
                 const data = await response.json();
                 if (data.message) {
@@ -598,7 +598,7 @@
                     document.getElementById('address-form-card').style.display = 'none';
                     loadAddresses();
                 } else {
-                    alert('Failed to add address');
+                    alert(data.error || 'Failed to add address');
                 }
             } catch (error) {
                 alert('Network error');
