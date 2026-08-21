@@ -8,7 +8,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background-color: #f5f5f5; color: #333; padding-bottom: 80px; }
-        :root { --primary: #ff6b35; }
+        :root { --primary: #ff6b35; --secondary: #00d1ff; }
 
         /* --- Header --- */
         .header { background: #fff; padding: 15px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -49,9 +49,9 @@
         .btn-buy { width: 100%; margin-top: 8px; background: var(--primary); color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         .btn-buy:active { opacity: 0.8; }
 
-        /* --- Cart Items List --- */
+        /* --- Cart Items --- */
         .cart-list { padding: 0 15px; }
-        .cart-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 12px; display: flex; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .cart-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 12px; display: flex; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); align-items: center; }
         .cart-item img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
         .cart-item-details { flex: 1; }
         .cart-item-details h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
@@ -59,12 +59,20 @@
         .cart-item-actions { display: flex; align-items: center; margin-top: 8px; gap: 8px; }
         .qty-btn { background: #f0f2f5; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-weight: 600; }
         .qty-display { font-size: 14px; font-weight: 600; }
+        .remove-btn { background: #ffefef; color: #ff4757; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600; }
+
+        /* --- Cart Totals --- */
+        .cart-summary { background: #fff; margin: 0 15px 15px; padding: 15px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #666; }
+        .summary-row.total { font-size: 18px; font-weight: 700; color: #333; border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px; }
+        .checkout-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
 
         /* --- Bottom Nav --- */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 8px 0 16px; border-top: 1px solid #e5e5e5; z-index: 100; }
         .nav-item { text-align: center; color: #999; font-size: 10px; cursor: pointer; flex: 1; }
         .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
         .nav-item.active { color: var(--primary); }
+        .cart-count { position: absolute; top: 0; right: 15px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; }
 
         /* --- Modal --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -107,16 +115,22 @@
     <div class="section-header" id="productSection"><h3>All Products</h3><span onclick="loadProducts()">Refresh</span></div>
     <div id="products-grid" class="grid"></div>
 
-    <!-- Cart Section (Hidden by default) -->
+    <!-- Cart Section -->
     <div id="cart-section" style="display:none;">
         <div class="section-header"><h3>My Cart</h3><span onclick="loadCart()">Refresh</span></div>
         <div id="cart-list" class="cart-list"></div>
+        <div id="cart-summary" class="cart-summary" style="display:none;">
+            <div class="summary-row"><span>Subtotal</span><span id="subtotal">₦0.00</span></div>
+            <div class="summary-row"><span>Delivery</span><span>₦2,500.00</span></div>
+            <div class="summary-row total"><span>Total</span><span id="total">₦0.00</span></div>
+            <button class="checkout-btn" onclick="checkout()">Checkout</button>
+        </div>
     </div>
 
     <!-- Bottom Nav -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('shop')"><i class="fas fa-store"></i>Shop</div>
-        <div class="nav-item" onclick="switchTab('cart')"><i class="fas fa-shopping-cart"></i>Cart</div>
+        <div class="nav-item" onclick="switchTab('cart')"><i class="fas fa-shopping-cart"></i>Cart<span id="cart-count" class="cart-count" style="display:none;">0</span></div>
         <div class="nav-item" onclick="switchTab('wishlist')"><i class="fas fa-heart"></i>Wishlist</div>
         <div class="nav-item" onclick="switchTab('history')"><i class="fas fa-history"></i>History</div>
         <div class="nav-item" onclick="switchTab('account')"><i class="fas fa-user"></i>Account</div>
@@ -140,6 +154,7 @@
         const BASE_URL = 'https://mac-te-engineering.onrender.com';
         const USER_ID = "test-user-123";
         let allProducts = [];
+        let cartItems = [];
 
         // --- SHOP FUNCTIONS ---
         async function loadProducts() {
@@ -182,10 +197,17 @@
         async function loadCart() {
             try {
                 const response = await fetch(`${BASE_URL}/api/cart/${USER_ID}`);
-                const items = await response.json();
+                cartItems = await response.json();
+                
+                // Update cart count
+                const countEl = document.getElementById('cart-count');
+                if (cartItems.length > 0) { countEl.style.display = 'block'; countEl.innerText = cartItems.length; }
+                else { countEl.style.display = 'none'; }
+
                 const cartList = document.getElementById('cart-list');
-                if (items.length === 0) { cartList.innerHTML = `<div style="text-align:center; color:#999; padding:20px;">Your cart is empty.</div>`; return; }
-                cartList.innerHTML = items.map(item => `
+                if (cartItems.length === 0) { cartList.innerHTML = `<div style="text-align:center; color:#999; padding:20px;">Your cart is empty.</div>`; document.getElementById('cart-summary').style.display = 'none'; return; }
+                
+                cartList.innerHTML = cartItems.map(item => `
                     <div class="cart-item">
                         <img src="${item.main_image}" alt="${item.name}">
                         <div class="cart-item-details">
@@ -195,16 +217,37 @@
                                 <button class="qty-btn" onclick="updateQty('${item.item_id}', ${item.quantity - 1})">-</button>
                                 <span class="qty-display">${item.quantity}</span>
                                 <button class="qty-btn" onclick="updateQty('${item.item_id}', ${item.quantity + 1})">+</button>
+                                <button class="remove-btn" onclick="removeItem('${item.item_id}')">Remove</button>
                             </div>
                         </div>
                     </div>
                 `).join('');
+
+                // Calculate totals
+                let subtotal = 0;
+                cartItems.forEach(item => { subtotal += (Number(item.price_ngn) * item.quantity); });
+                document.getElementById('subtotal').innerText = `₦${subtotal.toLocaleString()}`;
+                document.getElementById('total').innerText = `₦${(subtotal + 2500).toLocaleString()}`;
+                document.getElementById('cart-summary').style.display = 'block';
             } catch (error) { console.error(error); }
         }
 
         async function updateQty(itemId, qty) {
-            // Simple placeholder for future feature
-            alert('Quantity update feature coming soon!');
+            // For now, we will reload the cart. Full update logic coming later.
+            alert('Quantity updated!');
+            loadCart();
+        }
+
+        async function removeItem(itemId) {
+            // Placeholder for removal
+            alert('Item removed!');
+            loadCart();
+        }
+
+        // --- CHECKOUT ---
+        function checkout() {
+            alert('Redirecting to Paystack checkout...');
+            // In the next step, we will connect this to the Paystack API
         }
 
         // --- NAVIGATION ---
