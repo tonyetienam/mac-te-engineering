@@ -7,163 +7,247 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: #f5f5f5; color: #333; padding-bottom: 80px; }
-        :root { --primary: #ff6b35; --secondary: #00d1ff; }
+        body { background-color: #f5f5f5; color: #333; }
+        :root { --primary: #ff6b35; }
 
-        /* --- Header --- */
+        /* --- Auth Screen --- */
+        .auth-container { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .auth-box { background: #fff; border-radius: 20px; padding: 30px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .auth-logo { text-align: center; margin-bottom: 20px; }
+        .auth-logo h1 { font-size: 24px; color: #333; }
+        .auth-logo h1 span { color: var(--primary); }
+        .auth-form { display: flex; flex-direction: column; gap: 15px; }
+        .input-group { display: flex; flex-direction: column; }
+        .input-group label { font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #666; }
+        .input-group input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
+        .input-group input:focus { border-color: var(--primary); }
+        .auth-btn { background: var(--primary); color: #fff; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; }
+        .auth-switch { text-align: center; margin-top: 15px; font-size: 13px; color: #666; }
+        .auth-switch span { color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: underline; }
+
+        /* --- Main App (Hidden initially) --- */
+        #main-app { display: none; padding-bottom: 80px; }
         .header { background: #fff; padding: 15px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .menu-btn { font-size: 22px; color: #333; cursor: pointer; }
+        .logout-btn { background: #ffefef; color: #ff4757; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        
         .search-bar { flex: 1; background: #f0f2f5; padding: 10px 15px; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
         .search-bar input { border: none; background: transparent; width: 100%; outline: none; font-size: 14px; }
-        .search-bar i { color: #999; }
-        .filter-btn { font-size: 20px; color: #333; margin-left: 10px; cursor: pointer; }
-
-        /* --- Banner --- */
-        .banner { margin: 12px; border-radius: 12px; overflow: hidden; background: #ffdcd2; padding: 20px; display: flex; justify-content: space-between; align-items: center; color: #8b3a1a; cursor: pointer; transition: transform 0.2s; }
-        .banner:active { transform: scale(0.98); }
-        .banner-text h2 { font-size: 20px; font-weight: 800; line-height: 1.2; }
-        .banner-text button { background: var(--primary); color: white; border: none; padding: 6px 16px; border-radius: 20px; margin-top: 8px; font-weight: 600; cursor: pointer; }
+        
+        .banner { margin: 12px; border-radius: 12px; overflow: hidden; background: #ffdcd2; padding: 20px; display: flex; justify-content: space-between; align-items: center; color: #8b3a1a; }
         .banner img { height: 100px; mix-blend-mode: multiply; }
-
-        /* --- Sections --- */
+        
         .section-header { display: flex; justify-content: space-between; padding: 0 15px; margin: 15px 0 10px; align-items: center; }
         .section-header h3 { font-size: 16px; font-weight: 700; }
-        .section-header span { color: var(--primary); font-size: 12px; cursor: pointer; }
         
-        .category-scroll { display: flex; overflow-x: auto; padding: 0 15px; gap: 15px; padding-bottom: 10px; }
+        .category-scroll { display: flex; overflow-x: auto; padding: 0 15px; gap: 15px; }
         .category-scroll::-webkit-scrollbar { display: none; }
-        .category-item { min-width: 80px; background: #fff; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; }
-        .category-item:active { transform: scale(0.95); }
-        .category-item i { font-size: 28px; color: var(--primary); margin-bottom: 4px; }
-        .category-item p { font-size: 11px; font-weight: 600; }
-
-        /* --- Product Grid --- */
+        .category-item { min-width: 80px; background: #fff; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 12px 15px; }
-        .product-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.03); cursor: pointer; transition: transform 0.2s; }
-        .product-card:active { transform: scale(0.97); }
-        .product-img { height: 140px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-        .product-img img { width: 100%; height: 100%; object-fit: cover; }
-        .product-info { padding: 10px; }
-        .product-info h4 { font-size: 13px; font-weight: 600; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 36px; }
-        .product-info .price { font-size: 15px; font-weight: 700; color: #333; }
-        .btn-buy { width: 100%; margin-top: 8px; background: var(--primary); color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        .btn-buy:active { opacity: 0.8; }
-
-        /* --- Cart Items --- */
+        .product-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        
         .cart-list { padding: 0 15px; }
-        .cart-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 12px; display: flex; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); align-items: center; }
+        .cart-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 12px; display: flex; gap: 12px; }
         .cart-item img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
-        .cart-item-details { flex: 1; }
-        .cart-item-details h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-        .cart-item-details .price { font-size: 14px; font-weight: 700; color: var(--primary); }
-        .cart-item-actions { display: flex; align-items: center; margin-top: 8px; gap: 8px; }
-        .qty-btn { background: #f0f2f5; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-weight: 600; }
-        .qty-display { font-size: 14px; font-weight: 600; }
-        .remove-btn { background: #ffefef; color: #ff4757; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600; }
-
-        /* --- Cart Totals --- */
-        .cart-summary { background: #fff; margin: 0 15px 15px; padding: 15px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #666; }
-        .summary-row.total { font-size: 18px; font-weight: 700; color: #333; border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px; }
+        
+        .cart-summary { background: #fff; margin: 0 15px 15px; padding: 15px; border-radius: 12px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .summary-row.total { font-size: 18px; font-weight: 700; border-top: 1px solid #eee; padding-top: 10px; }
         .checkout-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
 
-        /* --- Bottom Nav --- */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 8px 0 16px; border-top: 1px solid #e5e5e5; z-index: 100; }
-        .nav-item { text-align: center; color: #999; font-size: 10px; cursor: pointer; flex: 1; }
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+        .nav-item { text-align: center; color: #999; font-size: 10px; cursor: pointer; }
         .nav-item.active { color: var(--primary); }
-        .cart-count { position: absolute; top: 0; right: 15px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; }
-
-        /* --- Modal --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #fff; border-radius: 15px; max-width: 400px; width: 100%; overflow: hidden; animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal-img { width: 100%; height: 200px; background: #f9f9f9; object-fit: cover; }
-        .modal-body { padding: 20px; }
-        .modal-body h2 { font-size: 18px; margin-bottom: 5px; }
-        .modal-body .desc { color: #666; font-size: 14px; margin: 10px 0; line-height: 1.5; }
-        .modal-body .price { font-size: 20px; font-weight: 700; color: var(--primary); }
-        .modal-close { background: #e5e5e5; color: #333; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 15px; }
-        .modal-buy { background: var(--primary); color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <div class="menu-btn"><i class="fas fa-bars"></i></div>
-        <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search for anything..." onkeyup="filterProducts()"></div>
-        <div class="filter-btn"><i class="fas fa-sliders-h"></i></div>
-    </div>
 
-    <!-- Banner -->
-    <div class="banner" onclick="document.getElementById('productSection').scrollIntoView({behavior:'smooth'})">
-        <div class="banner-text"><h2>BACK IN<br>STOCK!</h2><p style="font-size:12px; margin:4px 0;">Mac-TE Smart Air Fryer</p><button onclick="event.stopPropagation(); document.getElementById('productSection').scrollIntoView({behavior:'smooth'})">Shop now</button></div>
-        <img src="https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg" alt="Product">
-    </div>
-
-    <!-- Categories -->
-    <div class="section-header"><h3>Categories</h3><span onclick="alert('Loading all categories...')">See all</span></div>
-    <div class="category-scroll">
-        <div class="category-item" onclick="filterByCategory('Villas')"><i class="fas fa-home"></i><p>Villas</p></div>
-        <div class="category-item" onclick="filterByCategory('Electronics')"><i class="fas fa-tv"></i><p>Electronics</p></div>
-        <div class="category-item" onclick="filterByCategory('Kitchen')"><i class="fas fa-utensils"></i><p>Kitchen</p></div>
-        <div class="category-item" onclick="filterByCategory('Phones')"><i class="fas fa-mobile-alt"></i><p>Phones</p></div>
-        <div class="category-item" onclick="filterByCategory('Fashion')"><i class="fas fa-tshirt"></i><p>Fashion</p></div>
-    </div>
-
-    <!-- Shop Section -->
-    <div class="section-header" id="productSection"><h3>All Products</h3><span onclick="loadProducts()">Refresh</span></div>
-    <div id="products-grid" class="grid"></div>
-
-    <!-- Cart Section -->
-    <div id="cart-section" style="display:none;">
-        <div class="section-header"><h3>My Cart</h3><span onclick="loadCart()">Refresh</span></div>
-        <div id="cart-list" class="cart-list"></div>
-        <div id="cart-summary" class="cart-summary" style="display:none;">
-            <div class="summary-row"><span>Subtotal</span><span id="subtotal">₦0.00</span></div>
-            <div class="summary-row"><span>Delivery</span><span>₦2,500.00</span></div>
-            <div class="summary-row total"><span>Total</span><span id="total">₦0.00</span></div>
-            <button class="checkout-btn" onclick="checkout()">Checkout</button>
+    <!-- 1. Auth Screen -->
+    <div id="auth-screen" class="auth-container">
+        <div class="auth-box">
+            <div class="auth-logo">
+                <h1>Mac-TE <span>Engineering</span></h1>
+                <p style="color:#888; font-size:13px; margin-top:5px;">Sign in to start shopping</p>
+            </div>
+            <div id="login-form" class="auth-form">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="login-email" placeholder="Enter your email">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password">
+                </div>
+                <button class="auth-btn" onclick="login()">Login</button>
+                <p class="auth-switch">Don't have an account? <span onclick="showRegister()">Register here</span></p>
+            </div>
+            <div id="register-form" class="auth-form" style="display:none;">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-name" placeholder="John Doe">
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="reg-email" placeholder="Enter your email">
+                </div>
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="reg-phone" placeholder="Enter your phone">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" placeholder="Create a password">
+                </div>
+                <button class="auth-btn" onclick="register()">Register</button>
+                <p class="auth-switch">Already have an account? <span onclick="showLogin()">Login here</span></p>
+            </div>
         </div>
     </div>
 
-    <!-- Bottom Nav -->
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('shop')"><i class="fas fa-store"></i>Shop</div>
-        <div class="nav-item" onclick="switchTab('cart')"><i class="fas fa-shopping-cart"></i>Cart<span id="cart-count" class="cart-count" style="display:none;">0</span></div>
-        <div class="nav-item" onclick="switchTab('wishlist')"><i class="fas fa-heart"></i>Wishlist</div>
-        <div class="nav-item" onclick="switchTab('history')"><i class="fas fa-history"></i>History</div>
-        <div class="nav-item" onclick="switchTab('account')"><i class="fas fa-user"></i>Account</div>
-    </div>
+    <!-- 2. Main App -->
+    <div id="main-app">
+        <div class="header">
+            <div class="search-bar"><i class="fas fa-search"></i><input type="text" placeholder="Search..."></div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
 
-    <!-- Modal -->
-    <div class="modal-overlay" id="detailModal">
-        <div class="modal-content">
-            <img class="modal-img" id="modalImg" src="" alt="Product">
-            <div class="modal-body">
-                <h2 id="modalTitle">Product Title</h2>
-                <p class="desc" id="modalDesc">Product description goes here...</p>
-                <p class="price" id="modalPrice">₦0.00</p>
-                <button class="modal-buy" id="modalBuyBtn">Buy Now</button>
-                <button class="modal-close" onclick="closeModal()">Close</button>
+        <div class="banner">
+            <div class="banner-text"><h2>BACK IN STOCK!</h2><p style="font-size:12px;">Smart Air Fryer</p></div>
+            <img src="https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg" alt="Product">
+        </div>
+
+        <div class="section-header"><h3>Categories</h3></div>
+        <div class="category-scroll">
+            <div class="category-item"><i class="fas fa-home"></i><p>Villas</p></div>
+            <div class="category-item"><i class="fas fa-tv"></i><p>Electronics</p></div>
+            <div class="category-item"><i class="fas fa-utensils"></i><p>Kitchen</p></div>
+        </div>
+
+        <div class="section-header"><h3>All Products</h3></div>
+        <div id="products-grid" class="grid"></div>
+
+        <div id="cart-section" style="display:none;">
+            <div class="section-header"><h3>My Cart</h3></div>
+            <div id="cart-list" class="cart-list"></div>
+            <div id="cart-summary" class="cart-summary" style="display:none;">
+                <div class="summary-row"><span>Subtotal</span><span id="subtotal">₦0.00</span></div>
+                <div class="summary-row"><span>Delivery</span><span>₦2,500.00</span></div>
+                <div class="summary-row total"><span>Total</span><span id="total">₦0.00</span></div>
+                <button class="checkout-btn" onclick="checkout()">Checkout</button>
             </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('shop')"><i class="fas fa-store"></i>Shop</div>
+            <div class="nav-item" onclick="switchTab('cart')"><i class="fas fa-shopping-cart"></i>Cart</div>
+            <div class="nav-item" onclick="switchTab('account')"><i class="fas fa-user"></i>Account</div>
         </div>
     </div>
 
     <script>
         const BASE_URL = 'https://mac-te-engineering.onrender.com';
-        const USER_ID = "test-user-123";
+        let token = localStorage.getItem('token');
+        let user = JSON.parse(localStorage.getItem('user'));
         let allProducts = [];
         let cartItems = [];
 
-        // --- SHOP FUNCTIONS ---
+        // --- AUTH ---
+        async function register() {
+            const full_name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const phone = document.getElementById('reg-phone').value;
+            const password = document.getElementById('reg-password').value;
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ full_name, email, phone, password })
+                });
+                const data = await response.json();
+                if (data.token) {
+                    token = data.token;
+                    user = data.user;
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('user', JSON.stringify(user));
+                    showApp();
+                } else {
+                    alert(data.error || 'Registration failed');
+                }
+            } catch (error) {
+                alert('Network error. Try again.');
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                if (data.token) {
+                    token = data.token;
+                    user = data.user;
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('user', JSON.stringify(user));
+                    showApp();
+                } else {
+                    alert(data.error || 'Login failed');
+                }
+            } catch (error) {
+                alert('Network error. Try again.');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            token = null;
+            user = null;
+            showAuth();
+        }
+
+        function showAuth() {
+            document.getElementById('auth-screen').style.display = 'flex';
+            document.getElementById('main-app').style.display = 'none';
+        }
+
+        function showApp() {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            loadProducts();
+        }
+
+        function showRegister() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'flex';
+        }
+
+        function showLogin() {
+            document.getElementById('login-form').style.display = 'flex';
+            document.getElementById('register-form').style.display = 'none';
+        }
+
+        // --- CHECK SESSION ON LOAD ---
+        if (token && user) {
+            showApp();
+        } else {
+            showAuth();
+        }
+
+        // --- SHOP ---
         async function loadProducts() {
             try {
                 const response = await fetch(`${BASE_URL}/api/products`);
                 allProducts = await response.json();
                 renderProducts(allProducts);
             } catch (error) {
-                document.getElementById('products-grid').innerHTML = `<div style="grid-column:1/-1; text-align:center; color:red;">Network error.</div>`;
+                console.error(error);
             }
         }
 
@@ -174,12 +258,12 @@
                 return;
             }
             grid.innerHTML = data.map(prod => `
-                <div class="product-card" onclick="openModal('${prod.id}')">
-                    <div class="product-img">${prod.main_image ? `<img src="${prod.main_image}" alt="Product">` : `<i class="fas fa-box"></i>`}</div>
+                <div class="product-card">
+                    <div class="product-img"><img src="${prod.main_image}" style="width:100%;height:140px;object-fit:cover;" alt="Product"></div>
                     <div class="product-info">
-                        <h4>${prod.name}</h4>
-                        <div class="price">₦${Number(prod.price_ngn).toLocaleString()}</div>
-                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('${prod.id}')">Buy Now</button>
+                        <h4 style="font-size:13px; padding:8px 10px 0;">${prod.name}</h4>
+                        <div class="price" style="font-weight:700; padding:4px 10px;">₦${Number(prod.price_ngn).toLocaleString()}</div>
+                        <button style="background:var(--primary); color:white; border:none; padding:8px; width:90%; margin:10px auto; display:block; border-radius:6px; cursor:pointer;" onclick="addToCart('${prod.id}')">Buy Now</button>
                     </div>
                 </div>
             `).join('');
@@ -187,43 +271,37 @@
 
         async function addToCart(productId) {
             try {
-                const response = await fetch(`${BASE_URL}/api/cart/add`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: USER_ID, product_id: productId, quantity: 1 }) });
+                const response = await fetch(`${BASE_URL}/api/cart/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ user_id: user.id, product_id: productId, quantity: 1 })
+                });
                 const data = await response.json();
-                if (data.message) { alert(`✅ ${data.message}`); } else { alert('❌ Failed.'); }
+                if (data.message) alert(`✅ ${data.message}`);
+                else alert('❌ Failed.');
             } catch (error) { alert('❌ Network error.'); }
         }
 
-        // --- CART FUNCTIONS ---
+        // --- CART ---
         async function loadCart() {
             try {
-                const response = await fetch(`${BASE_URL}/api/cart/${USER_ID}`);
+                const response = await fetch(`${BASE_URL}/api/cart/${user.id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 cartItems = await response.json();
-                
-                // Update cart count
-                const countEl = document.getElementById('cart-count');
-                if (cartItems.length > 0) { countEl.style.display = 'block'; countEl.innerText = cartItems.length; }
-                else { countEl.style.display = 'none'; }
-
                 const cartList = document.getElementById('cart-list');
-                if (cartItems.length === 0) { cartList.innerHTML = `<div style="text-align:center; color:#999; padding:20px;">Your cart is empty.</div>`; document.getElementById('cart-summary').style.display = 'none'; return; }
-                
+                if (cartItems.length === 0) { cartList.innerHTML = `<div style="text-align:center; color:#999;">Your cart is empty.</div>`; document.getElementById('cart-summary').style.display = 'none'; return; }
                 cartList.innerHTML = cartItems.map(item => `
                     <div class="cart-item">
                         <img src="${item.main_image}" alt="${item.name}">
                         <div class="cart-item-details">
                             <h4>${item.name}</h4>
-                            <div class="price">₦${Number(item.price_ngn).toLocaleString()}</div>
-                            <div class="cart-item-actions">
-                                <button class="qty-btn" onclick="updateQty('${item.item_id}', ${item.quantity - 1})">-</button>
-                                <span class="qty-display">${item.quantity}</span>
-                                <button class="qty-btn" onclick="updateQty('${item.item_id}', ${item.quantity + 1})">+</button>
-                                <button class="remove-btn" onclick="removeItem('${item.item_id}')">Remove</button>
-                            </div>
+                            <div class="price" style="color:var(--primary); font-weight:700;">₦${Number(item.price_ngn).toLocaleString()}</div>
+                            <div style="font-size:12px; color:#888;">Qty: ${item.quantity}</div>
                         </div>
                     </div>
                 `).join('');
 
-                // Calculate totals
                 let subtotal = 0;
                 cartItems.forEach(item => { subtotal += (Number(item.price_ngn) * item.quantity); });
                 document.getElementById('subtotal').innerText = `₦${subtotal.toLocaleString()}`;
@@ -232,116 +310,31 @@
             } catch (error) { console.error(error); }
         }
 
-        async function updateQty(itemId, qty) {
-            // For now, we will reload the cart. Full update logic coming later.
-            alert('Quantity updated!');
-            loadCart();
-        }
-
-        async function removeItem(itemId) {
-            // Placeholder for removal
-            alert('Item removed!');
-            loadCart();
-        }
-
         // --- CHECKOUT ---
         async function checkout() {
-            const buyerEmail = prompt("Enter your email address for payment:");
-            if (!buyerEmail) return;
-
-            const totalAmount = document.getElementById('total').innerText.replace('₦', '').replace(/,/g, '');
-            
+            const total = document.getElementById('total').innerText.replace('₦', '').replace(/,/g, '');
+            const email = user.email;
             try {
-                // Create the Order in the database first
-                await fetch(`${BASE_URL}/api/orders`, {
+                const response = await fetch(`${BASE_URL}/api/pay/initialize`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: USER_ID,
-                        total_amount: parseInt(totalAmount),
-                        shipping_address: "Lekki, Lagos"
-                    })
+                    body: JSON.stringify({ property_id: null, buyer_email: email, amount_ngn: parseInt(total), metadata: { user_id: user.id } })
                 });
-                
-                // Now Initialize Payment with Paystack
-                const payResponse = await fetch(`${BASE_URL}/api/pay/initialize`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        property_id: null, // Not a property, it's a cart item
-                        buyer_email: buyerEmail,
-                        amount_ngn: parseInt(totalAmount),
-                        metadata: { user_id: USER_ID }
-                    })
-                });
-
-                const data = await payResponse.json();
-                
+                const data = await response.json();
                 if (data.status && data.data.authorization_url) {
                     window.location.href = data.data.authorization_url;
-                } else {
-                    alert('❌ Payment initialization failed. Please try again.');
-                }
-            } catch (error) {
-                console.error('Checkout error:', error);
-                alert('❌ Network error. Please try again.');
-            }
+                } else alert('Payment failed.');
+            } catch (error) { alert('Network error.'); }
         }
 
-        // --- NAVIGATION ---
+        // --- NAV ---
         function switchTab(tabName) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             event.target.closest('.nav-item').classList.add('active');
-            if (tabName === 'shop') {
-                document.getElementById('productSection').style.display = 'block';
-                document.getElementById('products-grid').style.display = 'grid';
-                document.getElementById('cart-section').style.display = 'none';
-            } else if (tabName === 'cart') {
-                document.getElementById('productSection').style.display = 'none';
-                document.getElementById('products-grid').style.display = 'none';
-                document.getElementById('cart-section').style.display = 'block';
-                loadCart();
-            } else if (tabName === 'wishlist') { alert('❤️ Your wishlist is empty.'); }
-            else if (tabName === 'history') { alert('📜 You have no recent orders.'); }
-            else if (tabName === 'account') { alert('👤 Please log in to view your account.'); }
+            if (tabName === 'shop') { document.getElementById('products-grid').style.display = 'grid'; document.getElementById('cart-section').style.display = 'none'; }
+            else if (tabName === 'cart') { document.getElementById('products-grid').style.display = 'none'; document.getElementById('cart-section').style.display = 'block'; loadCart(); }
+            else { alert('Account page coming soon!'); }
         }
-
-        // --- MODAL ---
-        function openModal(id) {
-            const prod = allProducts.find(p => p.id === id);
-            if (!prod) return;
-            document.getElementById('modalImg').src = prod.main_image || '';
-            document.getElementById('modalTitle').innerText = prod.name;
-            document.getElementById('modalDesc').innerText = prod.description || 'No description available.';
-            document.getElementById('modalPrice').innerText = `₦${Number(prod.price_ngn).toLocaleString()}`;
-            document.getElementById('modalBuyBtn').onclick = async () => {
-                await addToCart(prod.id);
-                closeModal();
-            };
-            document.getElementById('detailModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('detailModal').style.display = 'none';
-        }
-
-        document.getElementById('detailModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
-
-        // --- SEARCH ---
-        function filterProducts() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(query));
-            renderProducts(filtered);
-        }
-
-        function filterByCategory(cat) {
-            alert(`Showing all products in category: ${cat}`);
-            loadProducts();
-        }
-
-        loadProducts();
     </script>
 </body>
 </html>
