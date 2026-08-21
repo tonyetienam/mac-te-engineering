@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: #f5f5f5; color: #333; }
-        :root { --primary: #ff6b35; }
+        body { background-color: #f8f9fa; color: #333; }
+        :root { --primary: #ff6b35; --text-color: #333; --border: #e0e0e0; }
 
         /* Auth Screen */
         .auth-container { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
@@ -19,14 +19,15 @@
         .auth-form { display: flex; flex-direction: column; gap: 15px; }
         .input-group { display: flex; flex-direction: column; }
         .input-group label { font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #666; }
-        .input-group input, .input-group textarea, .input-group select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; width: 100%; }
+        .input-group input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
+        .input-group input:focus { border-color: var(--primary); }
         .auth-btn { background: var(--primary); color: #fff; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; }
         .auth-switch { text-align: center; margin-top: 15px; font-size: 13px; color: #666; }
         .auth-switch span { color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: underline; }
 
         /* Main App */
         #main-app { display: none; padding-bottom: 80px; }
-        .header { background: #fff; padding: 15px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .header { background: #fff; padding: 15px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .logout-btn { background: #ffefef; color: #ff4757; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
         .search-bar { flex: 1; background: #f0f2f5; padding: 10px 15px; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
         .search-bar input { border: none; background: transparent; width: 100%; outline: none; font-size: 14px; }
@@ -53,7 +54,7 @@
 
         /* Cart */
         .cart-list { padding: 0 15px; }
-        .cart-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 12px; display: flex; gap: 12px; align-items: center; }
+        .cart-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 12px; display: flex; gap: 12px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
         .cart-item img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
         .cart-item-details { flex: 1; }
         .cart-item-details h4 { font-size: 14px; font-weight: 600; }
@@ -69,7 +70,8 @@
 
         /* Wishlist */
         .wishlist-list { padding: 0 15px; }
-        .wishlist-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 12px; display: flex; gap: 12px; align-items: center; }
+        .wishlist-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 12px; display: flex; gap: 12px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .wishlist-item img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
 
         /* Orders */
         .orders-list { padding: 0 15px; }
@@ -78,32 +80,33 @@
         .order-card p { font-size: 13px; color: #666; margin-bottom: 8px; }
         .order-card .total { font-size: 16px; font-weight: 700; color: var(--primary); }
 
-        /* Reviews Section */
-        .reviews-list { padding: 0 15px; }
-        .review-card { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
-        .review-card .stars { color: #ffc107; font-size: 14px; }
-        .review-card p { font-size: 13px; color: #666; margin-top: 5px; }
-        .review-card .author { font-size: 12px; color: #999; margin-top: 5px; }
-
-        /* Addresses */
-        .address-list { padding: 0 15px; }
-        .address-card { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
-        .address-card h4 { font-size: 14px; font-weight: 600; }
-        .address-card p { font-size: 13px; color: #666; }
-
-        /* Support */
-        .support-form { padding: 0 15px 15px; }
-        .support-form textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; }
-        .support-tickets { padding: 0 15px; }
-        .ticket-card { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 15px; }
-
-        /* Profile */
+        /* Profile Page (MODERN) */
         .profile-page { padding: 20px; }
-        .profile-card { background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; margin-bottom: 20px; }
-        .avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; margin: 0 auto 15px; }
-        .profile-card h2 { margin-bottom: 5px; }
-        .profile-card p { color: #666; font-size: 14px; margin-bottom: 10px; }
-        .profile-details { background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        .profile-card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; text-align: center; }
+        .edit-profile-btn { position: absolute; top: 15px; right: 15px; background: #f0f2f5; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #555; }
+        .edit-profile-btn:hover { background: #e0e0e0; }
+        .avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 700; margin: 0 auto 15px; box-shadow: 0 4px 10px rgba(255,107,53,0.3); }
+        .profile-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
+        .profile-card p { color: #666; font-size: 14px; }
+
+        .section-title { font-size: 18px; font-weight: 700; margin: 20px 0 10px; padding: 0 5px; }
+
+        .info-card { background: #fff; border-radius: 12px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); margin-bottom: 15px; }
+        .info-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+        .info-row:last-child { border-bottom: none; }
+        .info-icon { width: 30px; height: 30px; border-radius: 8px; background: #ffe8db; color: var(--primary); display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px; }
+        .info-label { font-size: 12px; color: #888; font-weight: 500; }
+        .info-value { font-size: 14px; font-weight: 600; color: #333; margin-top: 2px; }
+        .edit-address-btn { margin-left: auto; background: transparent; border: none; cursor: pointer; color: #888; font-size: 16px; }
+
+        /* Address Form (Hidden) */
+        .address-form-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; display: none; }
+        .address-form-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 15px; }
+        .address-form-group { margin-bottom: 12px; }
+        .address-form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: #666; }
+        .address-form-group input, .address-form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
+        .save-address-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; }
 
         /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 8px 0 16px; border-top: 1px solid #e5e5e5; z-index: 100; }
@@ -210,40 +213,90 @@
             <div id="orders-list" class="orders-list"></div>
         </div>
 
-        <!-- Reviews Section -->
-        <div id="reviews-section" style="display:none;">
-            <div class="section-header"><h3>My Reviews</h3></div>
-            <div id="reviews-list" class="reviews-list"></div>
-        </div>
-
-        <!-- Addresses Section -->
-        <div id="addresses-section" style="display:none;">
-            <div class="section-header"><h3>My Addresses</h3></div>
-            <div class="support-form">
-                <input type="text" id="addr-name" placeholder="Full Name" style="margin-bottom:10px;">
-                <input type="text" id="addr-phone" placeholder="Phone Number" style="margin-bottom:10px;">
-                <input type="text" id="addr-city" placeholder="City" style="margin-bottom:10px;">
-                <input type="text" id="addr-state" placeholder="State" style="margin-bottom:10px;">
-                <textarea id="addr-detail" placeholder="Address Details" rows="3" style="margin-bottom:10px;"></textarea>
-                <button class="auth-btn" onclick="addAddress()" style="background:var(--primary); color:#fff; width:100%;">Add Address</button>
-            </div>
-            <div id="address-list" class="address-list"></div>
-        </div>
-
-        <!-- Profile Section -->
+        <!-- Profile Section (MODERN) -->
         <div id="profile-section" style="display:none;">
             <div class="profile-page">
+                
+                <!-- Profile Card -->
                 <div class="profile-card">
+                    <button class="edit-profile-btn" onclick="showEditProfile()"><i class="fas fa-pen"></i></button>
                     <div class="avatar" id="profile-avatar">U</div>
                     <h2 id="profile-name">User Name</h2>
                     <p id="profile-email">user@email.com</p>
                 </div>
-                <div class="profile-details">
-                    <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value" id="profile-fullname">-</span></div>
-                    <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value" id="profile-email2">-</span></div>
-                    <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value" id="profile-phone">-</span></div>
-                    <div class="detail-row"><span class="detail-label">Role</span><span class="detail-value" id="profile-role">Customer</span></div>
+
+                <!-- Address Section -->
+                <div class="section-title">Addresses</div>
+                <div id="address-list"></div>
+
+                <!-- Add/Edit Address Form -->
+                <div class="address-form-card" id="address-form-card">
+                    <h4 id="address-form-title">Add New Address</h4>
+                    <div class="address-form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="addr-name" placeholder="e.g. Anthony Etienam">
+                    </div>
+                    <div class="address-form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="addr-phone" placeholder="e.g. 07065677217">
+                    </div>
+                    <div class="address-form-group">
+                        <label>Country</label>
+                        <select id="addr-country">
+                            <option value="Nigeria">Nigeria</option>
+                            <option value="Ghana">Ghana</option>
+                            <option value="Kenya">Kenya</option>
+                            <option value="South Africa">South Africa</option>
+                        </select>
+                    </div>
+                    <div class="address-form-group">
+                        <label>State</label>
+                        <select id="addr-state">
+                            <option value="Lagos">Lagos</option>
+                            <option value="Abuja (FCT)">Abuja (FCT)</option>
+                            <option value="Rivers">Rivers</option>
+                            <option value="Oyo">Oyo</option>
+                            <option value="Kano">Kano</option>
+                            <option value="Enugu">Enugu</option>
+                        </select>
+                    </div>
+                    <div class="address-form-group">
+                        <label>City</label>
+                        <input type="text" id="addr-city" placeholder="e.g. Lekki">
+                    </div>
+                    <div class="address-form-group">
+                        <label>Street Address</label>
+                        <textarea id="addr-detail" rows="3" placeholder="e.g. 12 Admiralty Way" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; font-size:14px;"></textarea>
+                    </div>
+                    <button class="save-address-btn" onclick="saveAddress()">Save Address</button>
                 </div>
+
+                <!-- Other Account Info -->
+                <div class="section-title">Account Information</div>
+                <div class="info-card">
+                    <div class="info-row">
+                        <div class="info-icon"><i class="fas fa-user"></i></div>
+                        <div>
+                            <div class="info-label">Full Name</div>
+                            <div class="info-value" id="profile-fullname">-</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <div class="info-label">Email</div>
+                            <div class="info-value" id="profile-email2">-</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="fas fa-phone"></i></div>
+                        <div>
+                            <div class="info-label">Phone</div>
+                            <div class="info-value" id="profile-phone">-</div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -531,11 +584,17 @@
         }
 
         // --- ADDRESSES ---
-        async function addAddress() {
+        function showEditProfile() {
+            const form = document.getElementById('address-form-card');
+            form.style.display = 'block';
+        }
+
+        async function saveAddress() {
             const full_name = document.getElementById('addr-name').value;
             const phone = document.getElementById('addr-phone').value;
             const city = document.getElementById('addr-city').value;
             const state = document.getElementById('addr-state').value;
+            const country = document.getElementById('addr-country').value;
             const address = document.getElementById('addr-detail').value;
 
             if (!full_name || !phone || !address) {
@@ -551,13 +610,8 @@
                 const data = await response.json();
                 if (data.message) {
                     alert('✅ Address added!');
+                    document.getElementById('address-form-card').style.display = 'none';
                     loadAddresses();
-                    // Clear form
-                    document.getElementById('addr-name').value = '';
-                    document.getElementById('addr-phone').value = '';
-                    document.getElementById('addr-city').value = '';
-                    document.getElementById('addr-state').value = '';
-                    document.getElementById('addr-detail').value = '';
                 } else {
                     alert('Failed to add address');
                 }
@@ -572,38 +626,19 @@
                 const addresses = await response.json();
                 const list = document.getElementById('address-list');
                 if (addresses.length === 0) {
-                    list.innerHTML = `<div style="text-align:center; color:#999;">No addresses saved yet.</div>`;
+                    list.innerHTML = `<button onclick="showEditProfile()" style="background:#f0f2f5; border:none; padding:15px; width:100%; border-radius:12px; font-weight:600; color:#666;">+ Add New Address</button>`;
                     return;
                 }
                 list.innerHTML = addresses.map(addr => `
-                    <div class="address-card">
-                        <h4>${addr.full_name}</h4>
-                        <p>${addr.address}, ${addr.city}, ${addr.state}</p>
-                        <p>Phone: ${addr.phone}</p>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        // --- REVIEWS ---
-        async function loadReviews() {
-            try {
-                // We will show all reviews for all products for simplicity
-                // In a real app, you would filter by product
-                const response = await fetch(`${BASE_URL}/api/reviews/${allProducts[0]?.id}`);
-                const reviews = await response.json();
-                const list = document.getElementById('reviews-list');
-                if (reviews.length === 0) {
-                    list.innerHTML = `<div style="text-align:center; color:#999;">No reviews yet.</div>`;
-                    return;
-                }
-                list.innerHTML = reviews.map(review => `
-                    <div class="review-card">
-                        <div class="stars">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
-                        <p>${review.comment}</p>
-                        <p class="author">- ${review.full_name}</p>
+                    <div class="info-card">
+                        <div class="info-row">
+                            <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <div>
+                                <div class="info-label">${addr.full_name} | ${addr.phone}</div>
+                                <div class="info-value">${addr.address}, ${addr.city}, ${addr.state}</div>
+                            </div>
+                            <button class="edit-address-btn" onclick="showEditProfile()"><i class="fas fa-pen"></i></button>
+                        </div>
                     </div>
                 `).join('');
             } catch (error) {
@@ -638,7 +673,6 @@
             document.getElementById('profile-fullname').innerText = user.full_name || '-';
             document.getElementById('profile-email2').innerText = user.email || '-';
             document.getElementById('profile-phone').innerText = user.phone || '-';
-            document.getElementById('profile-role').innerText = user.role || 'Customer';
         }
 
         // --- CHECKOUT ---
@@ -666,16 +700,12 @@
                 document.getElementById('wishlist-section').style.display = 'none';
                 document.getElementById('cart-section').style.display = 'none';
                 document.getElementById('orders-section').style.display = 'none';
-                document.getElementById('reviews-section').style.display = 'none';
-                document.getElementById('addresses-section').style.display = 'none';
                 document.getElementById('profile-section').style.display = 'none';
             } else if (tabName === 'wishlist') {
                 document.getElementById('products-grid').style.display = 'none';
                 document.getElementById('wishlist-section').style.display = 'block';
                 document.getElementById('cart-section').style.display = 'none';
                 document.getElementById('orders-section').style.display = 'none';
-                document.getElementById('reviews-section').style.display = 'none';
-                document.getElementById('addresses-section').style.display = 'none';
                 document.getElementById('profile-section').style.display = 'none';
                 loadWishlist();
             } else if (tabName === 'cart') {
@@ -683,8 +713,6 @@
                 document.getElementById('wishlist-section').style.display = 'none';
                 document.getElementById('cart-section').style.display = 'block';
                 document.getElementById('orders-section').style.display = 'none';
-                document.getElementById('reviews-section').style.display = 'none';
-                document.getElementById('addresses-section').style.display = 'none';
                 document.getElementById('profile-section').style.display = 'none';
                 loadCart();
             } else if (tabName === 'orders') {
@@ -692,8 +720,6 @@
                 document.getElementById('wishlist-section').style.display = 'none';
                 document.getElementById('cart-section').style.display = 'none';
                 document.getElementById('orders-section').style.display = 'block';
-                document.getElementById('reviews-section').style.display = 'none';
-                document.getElementById('addresses-section').style.display = 'none';
                 document.getElementById('profile-section').style.display = 'none';
                 loadOrders();
             } else if (tabName === 'account') {
@@ -701,8 +727,6 @@
                 document.getElementById('wishlist-section').style.display = 'none';
                 document.getElementById('cart-section').style.display = 'none';
                 document.getElementById('orders-section').style.display = 'none';
-                document.getElementById('reviews-section').style.display = 'none';
-                document.getElementById('addresses-section').style.display = 'block';
                 document.getElementById('profile-section').style.display = 'block';
                 loadProfile();
                 loadAddresses();
