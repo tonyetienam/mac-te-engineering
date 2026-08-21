@@ -19,7 +19,7 @@
         .auth-form { display: flex; flex-direction: column; gap: 15px; }
         .input-group { display: flex; flex-direction: column; }
         .input-group label { font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #666; }
-        .input-group input, .input-group textarea { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; width: 100%; }
+        .input-group input, .input-group textarea, .input-group select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; width: 100%; }
         .auth-btn { background: var(--primary); color: #fff; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; }
         .auth-switch { text-align: center; margin-top: 15px; font-size: 13px; color: #666; }
         .auth-switch span { color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: underline; }
@@ -50,7 +50,6 @@
         .modal-body .price { font-size: 20px; font-weight: 700; color: var(--primary); }
         .btn-modal { background: var(--primary); color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; }
         .btn-close { background: #e5e5e5; color: #333; border: none; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; margin-top: 10px; }
-        .wishlist-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; color: #ff4757; }
 
         /* Cart */
         .cart-list { padding: 0 15px; }
@@ -79,6 +78,25 @@
         .order-card p { font-size: 13px; color: #666; margin-bottom: 8px; }
         .order-card .total { font-size: 16px; font-weight: 700; color: var(--primary); }
 
+        /* Reviews Section */
+        .reviews-list { padding: 0 15px; }
+        .review-card { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .review-card .stars { color: #ffc107; font-size: 14px; }
+        .review-card p { font-size: 13px; color: #666; margin-top: 5px; }
+        .review-card .author { font-size: 12px; color: #999; margin-top: 5px; }
+
+        /* Addresses */
+        .address-list { padding: 0 15px; }
+        .address-card { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .address-card h4 { font-size: 14px; font-weight: 600; }
+        .address-card p { font-size: 13px; color: #666; }
+
+        /* Support */
+        .support-form { padding: 0 15px 15px; }
+        .support-form textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; }
+        .support-tickets { padding: 0 15px; }
+        .ticket-card { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 15px; }
+
         /* Profile */
         .profile-page { padding: 20px; }
         .profile-card { background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; margin-bottom: 20px; }
@@ -86,10 +104,6 @@
         .profile-card h2 { margin-bottom: 5px; }
         .profile-card p { color: #666; font-size: 14px; margin-bottom: 10px; }
         .profile-details { background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { font-weight: 600; color: #666; }
-        .detail-value { color: #333; }
 
         /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 8px 0 16px; border-top: 1px solid #e5e5e5; z-index: 100; }
@@ -202,6 +216,20 @@
             <div id="reviews-list" class="reviews-list"></div>
         </div>
 
+        <!-- Addresses Section -->
+        <div id="addresses-section" style="display:none;">
+            <div class="section-header"><h3>My Addresses</h3></div>
+            <div class="support-form">
+                <input type="text" id="addr-name" placeholder="Full Name" style="margin-bottom:10px;">
+                <input type="text" id="addr-phone" placeholder="Phone Number" style="margin-bottom:10px;">
+                <input type="text" id="addr-city" placeholder="City" style="margin-bottom:10px;">
+                <input type="text" id="addr-state" placeholder="State" style="margin-bottom:10px;">
+                <textarea id="addr-detail" placeholder="Address Details" rows="3" style="margin-bottom:10px;"></textarea>
+                <button class="auth-btn" onclick="addAddress()" style="background:var(--primary); color:#fff; width:100%;">Add Address</button>
+            </div>
+            <div id="address-list" class="address-list"></div>
+        </div>
+
         <!-- Profile Section -->
         <div id="profile-section" style="display:none;">
             <div class="profile-page">
@@ -280,7 +308,6 @@
             const email = document.getElementById('reg-email').value;
             const phone = document.getElementById('reg-phone').value;
             const password = document.getElementById('reg-password').value;
-
             try {
                 const response = await fetch(`${BASE_URL}/api/auth/register`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -291,16 +318,13 @@
                     token = data.token; user = data.user;
                     localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user));
                     showApp();
-                } else {
-                    alert(data.error || 'Registration failed');
-                }
+                } else { alert(data.error || 'Registration failed'); }
             } catch (error) { console.error(error); }
         }
 
         async function login() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-
             try {
                 const response = await fetch(`${BASE_URL}/api/auth/login`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -311,9 +335,7 @@
                     token = data.token; user = data.user;
                     localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user));
                     showApp();
-                } else {
-                    alert(data.error || 'Login failed');
-                }
+                } else { alert(data.error || 'Login failed'); }
             } catch (error) { console.error(error); }
         }
 
@@ -504,8 +526,89 @@
             try {
                 const response = await fetch(`${BASE_URL}/api/wishlist/remove/${wishlistId}`, { method: 'DELETE' });
                 const data = await response.json();
-                if (data.message) { alert('✅ Removed from wishlist'); loadWishlist(); }
+                if (data.message) { alert('✅ Removed'); loadWishlist(); }
             } catch (error) { alert('Network error.'); }
+        }
+
+        // --- ADDRESSES ---
+        async function addAddress() {
+            const full_name = document.getElementById('addr-name').value;
+            const phone = document.getElementById('addr-phone').value;
+            const city = document.getElementById('addr-city').value;
+            const state = document.getElementById('addr-state').value;
+            const address = document.getElementById('addr-detail').value;
+
+            if (!full_name || !phone || !address) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/addresses`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: user.id, full_name, phone, address, city, state })
+                });
+                const data = await response.json();
+                if (data.message) {
+                    alert('✅ Address added!');
+                    loadAddresses();
+                    // Clear form
+                    document.getElementById('addr-name').value = '';
+                    document.getElementById('addr-phone').value = '';
+                    document.getElementById('addr-city').value = '';
+                    document.getElementById('addr-state').value = '';
+                    document.getElementById('addr-detail').value = '';
+                } else {
+                    alert('Failed to add address');
+                }
+            } catch (error) {
+                alert('Network error');
+            }
+        }
+
+        async function loadAddresses() {
+            try {
+                const response = await fetch(`${BASE_URL}/api/addresses/${user.id}`);
+                const addresses = await response.json();
+                const list = document.getElementById('address-list');
+                if (addresses.length === 0) {
+                    list.innerHTML = `<div style="text-align:center; color:#999;">No addresses saved yet.</div>`;
+                    return;
+                }
+                list.innerHTML = addresses.map(addr => `
+                    <div class="address-card">
+                        <h4>${addr.full_name}</h4>
+                        <p>${addr.address}, ${addr.city}, ${addr.state}</p>
+                        <p>Phone: ${addr.phone}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // --- REVIEWS ---
+        async function loadReviews() {
+            try {
+                // We will show all reviews for all products for simplicity
+                // In a real app, you would filter by product
+                const response = await fetch(`${BASE_URL}/api/reviews/${allProducts[0]?.id}`);
+                const reviews = await response.json();
+                const list = document.getElementById('reviews-list');
+                if (reviews.length === 0) {
+                    list.innerHTML = `<div style="text-align:center; color:#999;">No reviews yet.</div>`;
+                    return;
+                }
+                list.innerHTML = reviews.map(review => `
+                    <div class="review-card">
+                        <div class="stars">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+                        <p>${review.comment}</p>
+                        <p class="author">- ${review.full_name}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error(error);
+            }
         }
 
         // --- ORDERS ---
@@ -563,12 +666,16 @@
                 document.getElementById('wishlist-section').style.display = 'none';
                 document.getElementById('cart-section').style.display = 'none';
                 document.getElementById('orders-section').style.display = 'none';
+                document.getElementById('reviews-section').style.display = 'none';
+                document.getElementById('addresses-section').style.display = 'none';
                 document.getElementById('profile-section').style.display = 'none';
             } else if (tabName === 'wishlist') {
                 document.getElementById('products-grid').style.display = 'none';
                 document.getElementById('wishlist-section').style.display = 'block';
                 document.getElementById('cart-section').style.display = 'none';
                 document.getElementById('orders-section').style.display = 'none';
+                document.getElementById('reviews-section').style.display = 'none';
+                document.getElementById('addresses-section').style.display = 'none';
                 document.getElementById('profile-section').style.display = 'none';
                 loadWishlist();
             } else if (tabName === 'cart') {
@@ -576,6 +683,8 @@
                 document.getElementById('wishlist-section').style.display = 'none';
                 document.getElementById('cart-section').style.display = 'block';
                 document.getElementById('orders-section').style.display = 'none';
+                document.getElementById('reviews-section').style.display = 'none';
+                document.getElementById('addresses-section').style.display = 'none';
                 document.getElementById('profile-section').style.display = 'none';
                 loadCart();
             } else if (tabName === 'orders') {
@@ -583,6 +692,8 @@
                 document.getElementById('wishlist-section').style.display = 'none';
                 document.getElementById('cart-section').style.display = 'none';
                 document.getElementById('orders-section').style.display = 'block';
+                document.getElementById('reviews-section').style.display = 'none';
+                document.getElementById('addresses-section').style.display = 'none';
                 document.getElementById('profile-section').style.display = 'none';
                 loadOrders();
             } else if (tabName === 'account') {
@@ -590,8 +701,11 @@
                 document.getElementById('wishlist-section').style.display = 'none';
                 document.getElementById('cart-section').style.display = 'none';
                 document.getElementById('orders-section').style.display = 'none';
+                document.getElementById('reviews-section').style.display = 'none';
+                document.getElementById('addresses-section').style.display = 'block';
                 document.getElementById('profile-section').style.display = 'block';
                 loadProfile();
+                loadAddresses();
             }
         }
     </script>
