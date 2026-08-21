@@ -57,7 +57,6 @@ createCartTables();
 // AUTO-CREATE/UPDATE USERS TABLE ON SERVER STARTUP
 const createUsersTable = async () => {
     try {
-        // 1. Create the table if it doesn't exist
         await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -70,7 +69,6 @@ const createUsersTable = async () => {
             );
         `);
         
-        // 2. CHECK IF THE COLUMN 'password_hash' EXISTS - IF NOT, ADD IT!
         const columnCheck = await pool.query(`
             SELECT column_name FROM information_schema.columns 
             WHERE table_name = 'users' AND column_name = 'password_hash'
@@ -367,6 +365,34 @@ app.get('/api/cart/:user_id', async (req, res) => {
     } catch (error) {
         console.error('Error fetching cart:', error);
         res.status(500).json({ error: 'Failed to fetch cart' });
+    }
+});
+
+// 5. DELETE A PRODUCT (For Admin/Seller)
+app.delete('/api/products/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM products WHERE id = $1', [id]);
+        res.json({ message: 'Product deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ error: 'Failed to delete product' });
+    }
+});
+
+// 6. GET ALL ORDERS (For Admin)
+app.get('/api/admin/orders', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT o.id, o.total_amount, o.status, o.created_at, u.full_name, u.email 
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            ORDER BY o.created_at DESC
+        `);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ error: 'Failed to fetch orders' });
     }
 });
 
