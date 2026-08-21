@@ -9,7 +9,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background-color: #f5f5f5; color: #333; padding-bottom: 80px; }
         :root { --primary: #ff6b35; }
-        
+
+        /* --- Header --- */
         .header { background: #fff; padding: 15px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .menu-btn { font-size: 22px; color: #333; cursor: pointer; }
         .search-bar { flex: 1; background: #f0f2f5; padding: 10px 15px; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
@@ -17,12 +18,14 @@
         .search-bar i { color: #999; }
         .filter-btn { font-size: 20px; color: #333; margin-left: 10px; cursor: pointer; }
 
+        /* --- Banner --- */
         .banner { margin: 12px; border-radius: 12px; overflow: hidden; background: #ffdcd2; padding: 20px; display: flex; justify-content: space-between; align-items: center; color: #8b3a1a; cursor: pointer; transition: transform 0.2s; }
         .banner:active { transform: scale(0.98); }
         .banner-text h2 { font-size: 20px; font-weight: 800; line-height: 1.2; }
         .banner-text button { background: var(--primary); color: white; border: none; padding: 6px 16px; border-radius: 20px; margin-top: 8px; font-weight: 600; cursor: pointer; }
         .banner img { height: 100px; mix-blend-mode: multiply; }
 
+        /* --- Sections --- */
         .section-header { display: flex; justify-content: space-between; padding: 0 15px; margin: 15px 0 10px; align-items: center; }
         .section-header h3 { font-size: 16px; font-weight: 700; }
         .section-header span { color: var(--primary); font-size: 12px; cursor: pointer; }
@@ -34,6 +37,7 @@
         .category-item i { font-size: 28px; color: var(--primary); margin-bottom: 4px; }
         .category-item p { font-size: 11px; font-weight: 600; }
 
+        /* --- Product Grid --- */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 12px 15px; }
         .product-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.03); cursor: pointer; transition: transform 0.2s; }
         .product-card:active { transform: scale(0.97); }
@@ -45,11 +49,24 @@
         .btn-buy { width: 100%; margin-top: 8px; background: var(--primary); color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         .btn-buy:active { opacity: 0.8; }
 
+        /* --- Cart Items List --- */
+        .cart-list { padding: 0 15px; }
+        .cart-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 12px; display: flex; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .cart-item img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
+        .cart-item-details { flex: 1; }
+        .cart-item-details h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .cart-item-details .price { font-size: 14px; font-weight: 700; color: var(--primary); }
+        .cart-item-actions { display: flex; align-items: center; margin-top: 8px; gap: 8px; }
+        .qty-btn { background: #f0f2f5; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .qty-display { font-size: 14px; font-weight: 600; }
+
+        /* --- Bottom Nav --- */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 8px 0 16px; border-top: 1px solid #e5e5e5; z-index: 100; }
         .nav-item { text-align: center; color: #999; font-size: 10px; cursor: pointer; flex: 1; }
         .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
         .nav-item.active { color: var(--primary); }
 
+        /* --- Modal --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: #fff; border-radius: 15px; max-width: 400px; width: 100%; overflow: hidden; animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -63,17 +80,20 @@
     </style>
 </head>
 <body>
+    <!-- Header -->
     <div class="header">
         <div class="menu-btn"><i class="fas fa-bars"></i></div>
         <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search for anything..." onkeyup="filterProducts()"></div>
         <div class="filter-btn"><i class="fas fa-sliders-h"></i></div>
     </div>
 
+    <!-- Banner -->
     <div class="banner" onclick="document.getElementById('productSection').scrollIntoView({behavior:'smooth'})">
         <div class="banner-text"><h2>BACK IN<br>STOCK!</h2><p style="font-size:12px; margin:4px 0;">Mac-TE Smart Air Fryer</p><button onclick="event.stopPropagation(); document.getElementById('productSection').scrollIntoView({behavior:'smooth'})">Shop now</button></div>
         <img src="https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg" alt="Product">
     </div>
 
+    <!-- Categories -->
     <div class="section-header"><h3>Categories</h3><span onclick="alert('Loading all categories...')">See all</span></div>
     <div class="category-scroll">
         <div class="category-item" onclick="filterByCategory('Villas')"><i class="fas fa-home"></i><p>Villas</p></div>
@@ -83,9 +103,17 @@
         <div class="category-item" onclick="filterByCategory('Fashion')"><i class="fas fa-tshirt"></i><p>Fashion</p></div>
     </div>
 
+    <!-- Shop Section -->
     <div class="section-header" id="productSection"><h3>All Products</h3><span onclick="loadProducts()">Refresh</span></div>
-    <div id="products-grid" class="grid"><div style="grid-column: 1/-1; text-align:center; padding:20px; color:#999;"><i class="fas fa-spinner fa-spin"></i> Loading...</div></div>
+    <div id="products-grid" class="grid"></div>
 
+    <!-- Cart Section (Hidden by default) -->
+    <div id="cart-section" style="display:none;">
+        <div class="section-header"><h3>My Cart</h3><span onclick="loadCart()">Refresh</span></div>
+        <div id="cart-list" class="cart-list"></div>
+    </div>
+
+    <!-- Bottom Nav -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('shop')"><i class="fas fa-store"></i>Shop</div>
         <div class="nav-item" onclick="switchTab('cart')"><i class="fas fa-shopping-cart"></i>Cart</div>
@@ -94,6 +122,7 @@
         <div class="nav-item" onclick="switchTab('account')"><i class="fas fa-user"></i>Account</div>
     </div>
 
+    <!-- Modal -->
     <div class="modal-overlay" id="detailModal">
         <div class="modal-content">
             <img class="modal-img" id="modalImg" src="" alt="Product">
@@ -112,28 +141,26 @@
         const USER_ID = "test-user-123";
         let allProducts = [];
 
+        // --- SHOP FUNCTIONS ---
         async function loadProducts() {
             try {
                 const response = await fetch(`${BASE_URL}/api/products`);
                 allProducts = await response.json();
                 renderProducts(allProducts);
             } catch (error) {
-                document.getElementById('products-grid').innerHTML = `<div style="grid-column:1/-1; text-align:center; color:red;">Network error. Please refresh.</div>`;
+                document.getElementById('products-grid').innerHTML = `<div style="grid-column:1/-1; text-align:center; color:red;">Network error.</div>`;
             }
         }
 
         function renderProducts(data) {
             const grid = document.getElementById('products-grid');
             if (data.length === 0) {
-                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#999; padding:30px;">No products listed yet.</div>`;
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#999;">No products listed.</div>`;
                 return;
             }
-
             grid.innerHTML = data.map(prod => `
                 <div class="product-card" onclick="openModal('${prod.id}')">
-                    <div class="product-img">
-                        ${prod.main_image ? `<img src="${prod.main_image}" alt="Product">` : `<i class="fas fa-box" style="font-size:40px; color:#ccc;"></i>`}
-                    </div>
+                    <div class="product-img">${prod.main_image ? `<img src="${prod.main_image}" alt="Product">` : `<i class="fas fa-box"></i>`}</div>
                     <div class="product-info">
                         <h4>${prod.name}</h4>
                         <div class="price">₦${Number(prod.price_ngn).toLocaleString()}</div>
@@ -145,61 +172,71 @@
 
         async function addToCart(productId) {
             try {
-                const response = await fetch(`${BASE_URL}/api/cart/add`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: USER_ID, product_id: productId, quantity: 1 })
-                });
+                const response = await fetch(`${BASE_URL}/api/cart/add`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: USER_ID, product_id: productId, quantity: 1 }) });
                 const data = await response.json();
-                if (data.message) {
-                    alert(`✅ ${data.message}`);
-                } else {
-                    alert('❌ Failed to add item to cart.');
-                }
-            } catch (error) {
-                alert('❌ Network error.');
-            }
+                if (data.message) { alert(`✅ ${data.message}`); } else { alert('❌ Failed.'); }
+            } catch (error) { alert('❌ Network error.'); }
         }
 
-        function filterProducts() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(query));
-            renderProducts(filtered);
+        // --- CART FUNCTIONS ---
+        async function loadCart() {
+            try {
+                const response = await fetch(`${BASE_URL}/api/cart/${USER_ID}`);
+                const items = await response.json();
+                const cartList = document.getElementById('cart-list');
+                if (items.length === 0) { cartList.innerHTML = `<div style="text-align:center; color:#999; padding:20px;">Your cart is empty.</div>`; return; }
+                cartList.innerHTML = items.map(item => `
+                    <div class="cart-item">
+                        <img src="${item.main_image}" alt="${item.name}">
+                        <div class="cart-item-details">
+                            <h4>${item.name}</h4>
+                            <div class="price">₦${Number(item.price_ngn).toLocaleString()}</div>
+                            <div class="cart-item-actions">
+                                <button class="qty-btn" onclick="updateQty('${item.item_id}', ${item.quantity - 1})">-</button>
+                                <span class="qty-display">${item.quantity}</span>
+                                <button class="qty-btn" onclick="updateQty('${item.item_id}', ${item.quantity + 1})">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) { console.error(error); }
         }
 
-        function filterByCategory(cat) {
-            alert(`Showing all products in category: ${cat}`);
-            loadProducts();
+        async function updateQty(itemId, qty) {
+            // Simple placeholder for future feature
+            alert('Quantity update feature coming soon!');
         }
 
+        // --- NAVIGATION ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            if (tabName === 'shop') {
+                document.getElementById('productSection').style.display = 'block';
+                document.getElementById('products-grid').style.display = 'grid';
+                document.getElementById('cart-section').style.display = 'none';
+            } else if (tabName === 'cart') {
+                document.getElementById('productSection').style.display = 'none';
+                document.getElementById('products-grid').style.display = 'none';
+                document.getElementById('cart-section').style.display = 'block';
+                loadCart();
+            } else if (tabName === 'wishlist') { alert('❤️ Your wishlist is empty.'); }
+            else if (tabName === 'history') { alert('📜 You have no recent orders.'); }
+            else if (tabName === 'account') { alert('👤 Please log in to view your account.'); }
+        }
+
+        // --- MODAL ---
         function openModal(id) {
             const prod = allProducts.find(p => p.id === id);
             if (!prod) return;
-            
             document.getElementById('modalImg').src = prod.main_image || '';
             document.getElementById('modalTitle').innerText = prod.name;
             document.getElementById('modalDesc').innerText = prod.description || 'No description available.';
             document.getElementById('modalPrice').innerText = `₦${Number(prod.price_ngn).toLocaleString()}`;
-            
             document.getElementById('modalBuyBtn').onclick = async () => {
-                try {
-                    const response = await fetch(`${BASE_URL}/api/cart/add`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ user_id: USER_ID, product_id: prod.id, quantity: 1 })
-                    });
-                    const data = await response.json();
-                    if (data.message) {
-                        alert(`✅ ${data.message}! Go to the Cart tab.`);
-                        closeModal();
-                    } else {
-                        alert('❌ Failed to add item to cart.');
-                    }
-                } catch (error) {
-                    alert('❌ Network error.');
-                }
+                await addToCart(prod.id);
+                closeModal();
             };
-            
             document.getElementById('detailModal').style.display = 'flex';
         }
 
@@ -211,13 +248,16 @@
             if (e.target === this) closeModal();
         });
 
-        function switchTab(tabName) {
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            event.target.closest('.nav-item').classList.add('active');
-            if(tabName === 'cart') alert('🛒 You have items in your cart!');
-            else if(tabName === 'wishlist') alert('❤️ Your wishlist is empty.');
-            else if(tabName === 'history') alert('📜 You have no recent orders.');
-            else if(tabName === 'account') alert('👤 Please log in to view your account.');
+        // --- SEARCH ---
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(query));
+            renderProducts(filtered);
+        }
+
+        function filterByCategory(cat) {
+            alert(`Showing all products in category: ${cat}`);
+            loadProducts();
         }
 
         loadProducts();
