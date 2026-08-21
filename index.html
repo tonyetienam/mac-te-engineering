@@ -245,9 +245,47 @@
         }
 
         // --- CHECKOUT ---
-        function checkout() {
-            alert('Redirecting to Paystack checkout...');
-            // In the next step, we will connect this to the Paystack API
+        async function checkout() {
+            const buyerEmail = prompt("Enter your email address for payment:");
+            if (!buyerEmail) return;
+
+            const totalAmount = document.getElementById('total').innerText.replace('₦', '').replace(/,/g, '');
+            
+            try {
+                // Create the Order in the database first
+                await fetch(`${BASE_URL}/api/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: USER_ID,
+                        total_amount: parseInt(totalAmount),
+                        shipping_address: "Lekki, Lagos"
+                    })
+                });
+                
+                // Now Initialize Payment with Paystack
+                const payResponse = await fetch(`${BASE_URL}/api/pay/initialize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        property_id: null, // Not a property, it's a cart item
+                        buyer_email: buyerEmail,
+                        amount_ngn: parseInt(totalAmount),
+                        metadata: { user_id: USER_ID }
+                    })
+                });
+
+                const data = await payResponse.json();
+                
+                if (data.status && data.data.authorization_url) {
+                    window.location.href = data.data.authorization_url;
+                } else {
+                    alert('❌ Payment initialization failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('❌ Network error. Please try again.');
+            }
         }
 
         // --- NAVIGATION ---
