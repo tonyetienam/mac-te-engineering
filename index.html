@@ -6,119 +6,156 @@
     <title>Mac-TE Engineering Marketplace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: #f8f9fa; color: #333; }
-        :root { --primary: #ff6b35; --border: #e0e0e0; }
+        /* MODERN UI RESET & VARIABLES */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; }
+        :root { 
+            --primary: #ff6b35; 
+            --dark-blue: #1a1a2e;
+            --light-gray: #f9fafb;
+            --border: #e5e7eb;
+        }
 
-        /* Auth Screen */
-        .auth-container { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
-        .auth-box { background: #fff; border-radius: 20px; padding: 30px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .auth-logo { text-align: center; margin-bottom: 20px; }
-        .auth-logo h1 { font-size: 24px; color: #333; }
+        /* AUTH SCREEN (Modern) */
+        .auth-container { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+        .auth-box { background: #fff; border-radius: 20px; padding: 40px; width: 100%; max-width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .auth-logo { text-align: center; margin-bottom: 25px; }
+        .auth-logo h1 { font-size: 28px; font-weight: 800; color: #1a1a2e; }
         .auth-logo h1 span { color: var(--primary); }
+        .auth-logo p { color: #888; font-size: 13px; margin-top: 5px; }
         .auth-form { display: flex; flex-direction: column; gap: 15px; }
         .input-group { display: flex; flex-direction: column; }
-        .input-group label { font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #666; }
-        .input-group input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
-        .input-group input:focus { border-color: var(--primary); }
-        .auth-btn { background: var(--primary); color: #fff; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; }
-        .auth-switch { text-align: center; margin-top: 15px; font-size: 13px; color: #666; }
+        .input-group label { font-size: 12px; font-weight: 600; margin-bottom: 5px; color: #555; }
+        .input-group input { padding: 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; outline: none; transition: 0.2s; }
+        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255,107,53,0.1); }
+        .auth-btn { background: var(--primary); color: #fff; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .auth-btn:hover { background: #e55a2b; }
+        .auth-switch { text-align: center; margin-top: 15px; font-size: 13px; color: #888; }
         .auth-switch span { color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: underline; }
 
-        /* Main App */
-        #main-app { display: none; padding-bottom: 80px; }
-        .header { background: #fff; padding: 15px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .logout-btn { background: #ffefef; color: #ff4757; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .search-bar { flex: 1; background: #f0f2f5; padding: 10px 15px; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
-        .search-bar input { border: none; background: transparent; width: 100%; outline: none; font-size: 14px; }
-        .banner { margin: 12px; border-radius: 12px; overflow: hidden; background: #ffdcd2; padding: 20px; display: flex; justify-content: space-between; align-items: center; color: #8b3a1a; }
-        .banner img { height: 100px; mix-blend-mode: multiply; }
-        .section-header { display: flex; justify-content: space-between; padding: 0 15px; margin: 15px 0 10px; align-items: center; }
-        .section-header h3 { font-size: 16px; font-weight: 700; }
-        .category-scroll { display: flex; overflow-x: auto; padding: 0 15px; gap: 15px; }
-        .category-scroll::-webkit-scrollbar { display: none; }
-        .category-item { min-width: 80px; background: #fff; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 12px 15px; }
-        .product-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        /* MAIN APP */
+        #main-app { display: none; padding-bottom: 90px; }
 
-        /* Product Detail Modal */
+        /* HEADER */
+        .header { background: #fff; padding: 15px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
+        .logout-btn { background: #fff1f2; color: #ff4757; border: none; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .search-bar { flex: 1; background: #f4f6f9; padding: 12px 15px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
+        .search-bar input { border: none; background: transparent; width: 100%; outline: none; font-size: 14px; }
+        .search-bar i { color: #999; }
+
+        /* BANNER (Modern) */
+        .banner { margin: 20px; border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); padding: 25px; display: flex; justify-content: space-between; align-items: center; position: relative; }
+        .banner-text h2 { font-size: 24px; font-weight: 800; color: #1a1a2e; margin-bottom: 5px; }
+        .banner-text p { color: #555; font-size: 13px; }
+        .banner img { height: 120px; mix-blend-mode: multiply; position: absolute; right: 20px; }
+
+        /* SECTIONS */
+        .section-header { display: flex; justify-content: space-between; padding: 0 20px; margin: 20px 0 15px; align-items: center; }
+        .section-header h3 { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+        .section-header span { color: var(--primary); font-size: 13px; font-weight: 600; cursor: pointer; }
+
+        /* CATEGORIES */
+        .category-scroll { display: flex; overflow-x: auto; padding: 0 20px; gap: 15px; padding-bottom: 10px; }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .category-item { min-width: 90px; background: #fff; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+        .category-item:hover { transform: translateY(-3px); }
+        .category-item i { font-size: 28px; color: var(--primary); margin-bottom: 5px; }
+        .category-item p { font-size: 12px; font-weight: 600; }
+
+        /* PRODUCT GRID */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px 20px; }
+        .product-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .product-img { height: 150px; background: #f9fafb; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .product-img img { width: 100%; height: 100%; object-fit: cover; }
+        .product-info { padding: 12px; }
+        .product-info h4 { font-size: 13px; font-weight: 600; margin-bottom: 5px; line-height: 1.4; }
+        .product-info .price { font-size: 16px; font-weight: 800; color: var(--primary); }
+        .btn-buy { width: 100%; margin-top: 10px; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-buy:hover { opacity: 0.9; }
+
+        /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #fff; border-radius: 15px; max-width: 400px; width: 100%; overflow: hidden; }
+        .modal-content { background: #fff; border-radius: 16px; max-width: 400px; width: 100%; overflow: hidden; }
         .modal-img { width: 100%; height: 200px; object-fit: cover; }
         .modal-body { padding: 20px; }
-        .modal-body h2 { font-size: 18px; margin-bottom: 5px; }
+        .modal-body h2 { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
         .modal-body p { color: #666; font-size: 14px; margin: 10px 0; line-height: 1.5; }
-        .modal-body .price { font-size: 20px; font-weight: 700; color: var(--primary); }
-        .btn-modal { background: var(--primary); color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; }
-        .btn-close { background: #e5e5e5; color: #333; border: none; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        .modal-body .price { font-size: 24px; font-weight: 800; color: var(--primary); }
+        .btn-modal { background: var(--primary); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-close { background: #f4f6f9; color: #333; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; margin-top: 10px; }
 
-        /* Cart */
-        .cart-list { padding: 0 15px; }
-        .cart-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 12px; display: flex; gap: 12px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
-        .cart-item img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
+        /* CART */
+        .cart-list { padding: 0 20px; }
+        .cart-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 15px; display: flex; gap: 15px; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .cart-item img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; }
         .cart-item-details { flex: 1; }
-        .cart-item-details h4 { font-size: 14px; font-weight: 600; }
-        .cart-item-details .price { font-size: 14px; font-weight: 700; color: var(--primary); }
-        .cart-item-actions { display: flex; align-items: center; margin-top: 8px; gap: 8px; }
-        .qty-btn { background: #f0f2f5; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-weight: 600; }
-        .qty-display { font-size: 14px; font-weight: 600; }
-        .remove-btn { background: #ffefef; color: #ff4757; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600; }
-        .cart-summary { background: #fff; margin: 0 15px 15px; padding: 15px; border-radius: 12px; }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
-        .summary-row.total { font-size: 18px; font-weight: 700; border-top: 1px solid #eee; padding-top: 10px; }
-        .checkout-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .cart-item-details h4 { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+        .cart-item-details .price { font-size: 14px; font-weight: 800; color: var(--primary); }
+        .cart-item-actions { display: flex; align-items: center; margin-top: 8px; gap: 10px; }
+        .qty-btn { background: #f4f6f9; border: none; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-weight: 700; }
+        .qty-display { font-size: 14px; font-weight: 700; }
+        .remove-btn { background: #fff1f2; color: #ff4757; border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; }
+        .cart-summary { background: #fff; margin: 20px; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #666; }
+        .summary-row.total { font-size: 20px; font-weight: 800; color: #1a1a2e; border-top: 2px solid #f4f6f9; padding-top: 12px; }
+        .checkout-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 12px; }
+        .checkout-btn:hover { background: #e55a2b; }
 
-        /* Wishlist */
-        .wishlist-list { padding: 0 15px; }
-        .wishlist-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 12px; display: flex; gap: 12px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
-        .wishlist-item img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
+        /* WISHLIST */
+        .wishlist-list { padding: 0 20px; }
+        .wishlist-item { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 15px; display: flex; gap: 15px; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .wishlist-item img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; }
+        .remove-wish-btn { background: #fff1f2; color: #ff4757; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; }
 
-        /* Orders */
-        .orders-list { padding: 0 15px; }
-        .order-card { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        /* ORDERS */
+        .orders-list { padding: 0 20px; }
+        .order-card { background: #fff; border-radius: 12px; margin-bottom: 12px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .order-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 5px; }
         .order-card p { font-size: 13px; color: #666; margin-bottom: 8px; }
-        .order-card .total { font-size: 16px; font-weight: 700; color: var(--primary); }
+        .order-card .total { font-size: 16px; font-weight: 800; color: var(--primary); }
+        .order-card .status { color: #ff4757; font-weight: 600; font-size: 12px; }
 
-        /* Profile (Modern) */
+        /* PROFILE (MODERN) */
         .profile-page { padding: 20px; }
-        .profile-card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; text-align: center; }
-        .edit-profile-btn { position: absolute; top: 15px; right: 15px; background: #f0f2f5; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #555; }
-        .avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 700; margin: 0 auto 15px; }
-        .profile-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
+        .profile-card { background: #fff; border-radius: 16px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; position: relative; margin-bottom: 20px; }
+        .edit-profile-btn { position: absolute; top: 15px; right: 15px; background: #f4f6f9; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #555; }
+        .avatar { width: 100px; height: 100px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 800; margin: 0 auto 15px; }
+        .profile-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 5px; color: #1a1a2e; }
         .profile-card p { color: #666; font-size: 14px; }
 
-        .section-title { font-size: 18px; font-weight: 700; margin: 20px 0 10px; padding: 0 5px; }
-        .info-card { background: #fff; border-radius: 12px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); margin-bottom: 15px; }
-        .info-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+        .section-title { font-size: 18px; font-weight: 700; margin: 20px 0 10px; color: #1a1a2e; }
+        .info-card { background: #fff; border-radius: 12px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .info-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f4f6f9; }
         .info-row:last-child { border-bottom: none; }
-        .info-icon { width: 30px; height: 30px; border-radius: 8px; background: #ffe8db; color: var(--primary); display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px; }
+        .info-icon { width: 35px; height: 35px; border-radius: 10px; background: #fff1f2; color: var(--primary); display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 14px; }
         .info-label { font-size: 12px; color: #888; font-weight: 500; }
-        .info-value { font-size: 14px; font-weight: 600; color: #333; margin-top: 2px; }
-        .edit-address-btn { margin-left: auto; background: transparent; border: none; cursor: pointer; color: #888; font-size: 16px; }
+        .info-value { font-size: 14px; font-weight: 700; color: #333; margin-top: 2px; }
 
-        /* Address Form (Hidden by default) */
+        /* ADDRESS FORM */
         .address-form-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; display: none; }
-        .address-form-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 15px; }
-        .address-form-group { margin-bottom: 12px; }
-        .address-form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: #666; }
-        .address-form-group input, .address-form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
-        .save-address-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .address-form-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 15px; color: #1a1a2e; }
+        .address-form-group { margin-bottom: 15px; }
+        .address-form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: #555; }
+        .address-form-group input, .address-form-group select, .address-form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; }
+        .address-form-group input:focus, .address-form-group select:focus, .address-form-group textarea:focus { border-color: var(--primary); }
+        .save-address-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 800; cursor: pointer; margin-top: 10px; }
 
-        /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 8px 0 16px; border-top: 1px solid #e5e5e5; z-index: 100; }
+        /* BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 10px 0 20px; border-top: 1px solid var(--border); z-index: 100; }
         .nav-item { text-align: center; color: #999; font-size: 10px; cursor: pointer; }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
         .nav-item.active { color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <!-- Auth Screen -->
+    <!-- AUTH SCREEN -->
     <div id="auth-screen" class="auth-container">
         <div class="auth-box">
             <div class="auth-logo">
                 <h1>Mac-TE <span>Engineering</span></h1>
-                <p style="color:#888; font-size:13px; margin-top:5px;">Sign in to start shopping</p>
+                <p>Sign in to start shopping</p>
             </div>
             <div id="login-form" class="auth-form">
                 <div class="input-group">
@@ -164,7 +201,7 @@
         </div>
     </div>
 
-    <!-- Main App -->
+    <!-- MAIN APP -->
     <div id="main-app">
         <div class="header">
             <div class="search-bar"><i class="fas fa-search"></i><input type="text" placeholder="Search..."></div>
@@ -172,7 +209,7 @@
         </div>
 
         <div class="banner">
-            <div class="banner-text"><h2>BACK IN STOCK!</h2><p style="font-size:12px;">Smart Air Fryer</p></div>
+            <div class="banner-text"><h2>BACK IN STOCK!</h2><p>Smart Air Fryer</p></div>
             <img src="https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg" alt="Product">
         </div>
 
@@ -181,18 +218,20 @@
             <div class="category-item"><i class="fas fa-home"></i><p>Villas</p></div>
             <div class="category-item"><i class="fas fa-tv"></i><p>Electronics</p></div>
             <div class="category-item"><i class="fas fa-utensils"></i><p>Kitchen</p></div>
+            <div class="category-item"><i class="fas fa-tshirt"></i><p>Fashion</p></div>
+            <div class="category-item"><i class="fas fa-phone"></i><p>Phones</p></div>
         </div>
 
         <div class="section-header"><h3>All Products</h3></div>
         <div id="products-grid" class="grid"></div>
 
-        <!-- Wishlist Section -->
+        <!-- WISHLIST -->
         <div id="wishlist-section" style="display:none;">
             <div class="section-header"><h3>My Wishlist</h3></div>
             <div id="wishlist-list" class="wishlist-list"></div>
         </div>
 
-        <!-- Cart Section -->
+        <!-- CART -->
         <div id="cart-section" style="display:none;">
             <div class="section-header"><h3>My Cart</h3></div>
             <div id="cart-list" class="cart-list"></div>
@@ -204,17 +243,15 @@
             </div>
         </div>
 
-        <!-- Orders Section -->
+        <!-- ORDERS -->
         <div id="orders-section" style="display:none;">
             <div class="section-header"><h3>My Orders</h3></div>
             <div id="orders-list" class="orders-list"></div>
         </div>
 
-        <!-- Profile Section (MODERN) -->
+        <!-- PROFILE -->
         <div id="profile-section" style="display:none;">
             <div class="profile-page">
-                
-                <!-- Profile Card -->
                 <div class="profile-card">
                     <button class="edit-profile-btn" onclick="showAddressForm()"><i class="fas fa-pen"></i></button>
                     <div class="avatar" id="profile-avatar">U</div>
@@ -222,7 +259,6 @@
                     <p id="profile-email">user@email.com</p>
                 </div>
 
-                <!-- Address Form (Hidden by default) -->
                 <div class="address-form-card" id="address-form-card">
                     <h4>Add New Address</h4>
                     <div class="address-form-group">
@@ -251,12 +287,11 @@
                     </div>
                     <div class="address-form-group">
                         <label>Street Address</label>
-                        <textarea id="addr-detail" rows="3" placeholder="e.g. 12 Admiralty Way" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; font-size:14px;"></textarea>
+                        <textarea id="addr-detail" rows="3" placeholder="e.g. 12 Admiralty Way"></textarea>
                     </div>
                     <button class="save-address-btn" onclick="saveAddress()">Save Address</button>
                 </div>
 
-                <!-- Account Information (Addresses are shown here) -->
                 <div class="section-title">Account Information</div>
                 <div class="info-card">
                     <div class="info-row">
@@ -296,7 +331,7 @@
         </div>
     </div>
 
-    <!-- Product Detail Modal -->
+    <!-- PRODUCT MODAL -->
     <div class="modal-overlay" id="productModal">
         <div class="modal-content">
             <img class="modal-img" id="modalImg" src="" alt="Product">
@@ -305,7 +340,7 @@
                 <p id="modalDesc">Description</p>
                 <p class="price" id="modalPrice">₦0.00</p>
                 <button class="btn-modal" onclick="addToCartFromModal()">Buy Now</button>
-                <button class="btn-modal" style="background:#ffefef; color:#ff4757;" onclick="addToWishlistFromModal()">Save to Wishlist</button>
+                <button class="btn-modal" style="background:#fff1f2; color:#ff4757;" onclick="addToWishlistFromModal()">Save to Wishlist</button>
                 <button class="btn-close" onclick="closeModal()">Close</button>
             </div>
         </div>
@@ -327,21 +362,9 @@
         }
 
         // --- AUTH ---
-        function showLogin() {
-            document.getElementById('login-form').style.display = 'block';
-            document.getElementById('register-form').style.display = 'none';
-            document.getElementById('forgot-form').style.display = 'none';
-        }
-        function showRegister() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('register-form').style.display = 'block';
-            document.getElementById('forgot-form').style.display = 'none';
-        }
-        function showForgot() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('register-form').style.display = 'none';
-            document.getElementById('forgot-form').style.display = 'block';
-        }
+        function showLogin() { document.getElementById('login-form').style.display = 'block'; document.getElementById('register-form').style.display = 'none'; document.getElementById('forgot-form').style.display = 'none'; }
+        function showRegister() { document.getElementById('login-form').style.display = 'none'; document.getElementById('register-form').style.display = 'block'; document.getElementById('forgot-form').style.display = 'none'; }
+        function showForgot() { document.getElementById('login-form').style.display = 'none'; document.getElementById('register-form').style.display = 'none'; document.getElementById('forgot-form').style.display = 'block'; }
 
         async function register() {
             const full_name = document.getElementById('reg-name').value;
@@ -349,16 +372,10 @@
             const phone = document.getElementById('reg-phone').value;
             const password = document.getElementById('reg-password').value;
             try {
-                const response = await fetch(`${BASE_URL}/api/auth/register`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ full_name, email, phone, password })
-                });
+                const response = await fetch(`${BASE_URL}/api/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ full_name, email, phone, password }) });
                 const data = await response.json();
-                if (data.token) {
-                    token = data.token; user = data.user;
-                    localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user));
-                    showApp();
-                } else { alert(data.error || 'Registration failed'); }
+                if (data.token) { token = data.token; user = data.user; localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user)); showApp(); }
+                else { alert(data.error || 'Registration failed'); }
             } catch (error) { console.error(error); }
         }
 
@@ -366,51 +383,27 @@
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             try {
-                const response = await fetch(`${BASE_URL}/api/auth/login`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
+                const response = await fetch(`${BASE_URL}/api/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
                 const data = await response.json();
-                if (data.token) {
-                    token = data.token; user = data.user;
-                    localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user));
-                    showApp();
-                } else { alert(data.error || 'Login failed'); }
+                if (data.token) { token = data.token; user = data.user; localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user)); showApp(); }
+                else { alert(data.error || 'Login failed'); }
             } catch (error) { console.error(error); }
         }
 
         async function forgotPassword() {
             const email = document.getElementById('forgot-email').value;
             try {
-                const response = await fetch(`${BASE_URL}/api/auth/forgot-password`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
+                const response = await fetch(`${BASE_URL}/api/auth/forgot-password`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
                 const data = await response.json();
                 if (data.message) alert(`OTP sent: ${data.otp}`);
                 else alert(data.error || 'Failed to send OTP');
             } catch (error) { console.error(error); }
         }
 
-        function logout() {
-            localStorage.removeItem('token'); localStorage.removeItem('user');
-            token = null; user = null;
-            showAuth();
-        }
+        function logout() { localStorage.removeItem('token'); localStorage.removeItem('user'); token = null; user = null; showAuth(); }
+        function showAuth() { document.getElementById('auth-screen').style.display = 'flex'; document.getElementById('main-app').style.display = 'none'; showLogin(); }
+        function showApp() { document.getElementById('auth-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; loadProducts(); }
 
-        function showAuth() {
-            document.getElementById('auth-screen').style.display = 'flex';
-            document.getElementById('main-app').style.display = 'none';
-            showLogin();
-        }
-
-        function showApp() {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            loadProducts();
-        }
-
-        // --- CHECK SESSION ---
         if (token && user) { showApp(); } else { showAuth(); }
 
         // --- SHOP ---
@@ -424,25 +417,20 @@
 
         function renderProducts(data) {
             const grid = document.getElementById('products-grid');
-            if (data.length === 0) {
-                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#999;">No products listed.</div>`;
-                return;
-            }
+            if (data.length === 0) { grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#999;">No products listed.</div>`; return; }
             grid.innerHTML = data.map(prod => `
                 <div class="product-card" onclick="openProductModal('${prod.id}')">
-                    <div class="product-img" style="position:relative;">
-                        <img src="${getProductImage(prod.main_image)}" style="width:100%;height:140px;object-fit:cover;" alt="Product">
-                    </div>
+                    <div class="product-img"><img src="${getProductImage(prod.main_image)}" alt="Product"></div>
                     <div class="product-info">
-                        <h4 style="font-size:13px; padding:8px 10px 0;">${prod.name}</h4>
-                        <div class="price" style="font-weight:700; padding:4px 10px;">₦${Number(prod.price_ngn).toLocaleString()}</div>
-                        <button onclick="event.stopPropagation(); addToCart('${prod.id}')" style="background:var(--primary); color:white; border:none; padding:8px; width:90%; margin:10px auto; display:block; border-radius:6px; cursor:pointer;">Buy Now</button>
+                        <h4>${prod.name}</h4>
+                        <div class="price">₦${Number(prod.price_ngn).toLocaleString()}</div>
+                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('${prod.id}')">Buy Now</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // --- PRODUCT DETAIL MODAL ---
+        // --- PRODUCT MODAL ---
         function openProductModal(productId) {
             const prod = allProducts.find(p => p.id === productId);
             if (!prod) return;
@@ -453,27 +441,14 @@
             document.getElementById('modalPrice').innerText = `₦${Number(prod.price_ngn).toLocaleString()}`;
             document.getElementById('productModal').style.display = 'flex';
         }
-
-        function closeModal() {
-            document.getElementById('productModal').style.display = 'none';
-            selectedProductId = null;
-        }
-
-        function addToCartFromModal() {
-            if (selectedProductId) { addToCart(selectedProductId); closeModal(); }
-        }
-
-        function addToWishlistFromModal() {
-            if (selectedProductId) { addToWishlist(selectedProductId); closeModal(); }
-        }
+        function closeModal() { document.getElementById('productModal').style.display = 'none'; selectedProductId = null; }
+        function addToCartFromModal() { if (selectedProductId) { addToCart(selectedProductId); closeModal(); } }
+        function addToWishlistFromModal() { if (selectedProductId) { addToWishlist(selectedProductId); closeModal(); } }
 
         // --- CART ---
         async function addToCart(productId) {
             try {
-                const response = await fetch(`${BASE_URL}/api/cart/add`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: user.id, product_id: productId, quantity: 1 })
-                });
+                const response = await fetch(`${BASE_URL}/api/cart/add`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: user.id, product_id: productId, quantity: 1 }) });
                 const data = await response.json();
                 if (data.message) alert(`✅ ${data.message}`);
                 else alert('❌ Failed.');
@@ -488,10 +463,10 @@
                 if (items.length === 0) { cartList.innerHTML = `<div style="text-align:center; color:#999;">Your cart is empty.</div>`; document.getElementById('cart-summary').style.display = 'none'; return; }
                 cartList.innerHTML = items.map(item => `
                     <div class="cart-item">
-                        <img src="${getProductImage(item.main_image)}" alt="${item.name}" style="width:80px;height:80px;border-radius:8px;object-fit:cover;">
+                        <img src="${getProductImage(item.main_image)}" alt="${item.name}">
                         <div class="cart-item-details">
                             <h4>${item.name}</h4>
-                            <div class="price" style="color:var(--primary); font-weight:700;">₦${Number(item.price_ngn).toLocaleString()}</div>
+                            <div class="price">₦${Number(item.price_ngn).toLocaleString()}</div>
                             <div class="cart-item-actions">
                                 <button class="qty-btn" onclick="updateQty('${item.item_id}', ${item.quantity - 1})">-</button>
                                 <span class="qty-display">${item.quantity}</span>
@@ -513,10 +488,7 @@
         async function updateQty(itemId, qty) {
             if (qty < 1) { await removeItem(itemId); return; }
             try {
-                const response = await fetch(`${BASE_URL}/api/cart/update`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ item_id: itemId, quantity: qty })
-                });
+                const response = await fetch(`${BASE_URL}/api/cart/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ item_id: itemId, quantity: qty }) });
                 const data = await response.json();
                 if (data.message) loadCart();
             } catch (error) { alert('Network error.'); }
@@ -533,10 +505,7 @@
         // --- WISHLIST ---
         async function addToWishlist(productId) {
             try {
-                const response = await fetch(`${BASE_URL}/api/wishlist/add`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: user.id, product_id: productId })
-                });
+                const response = await fetch(`${BASE_URL}/api/wishlist/add`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: user.id, product_id: productId }) });
                 const data = await response.json();
                 if (data.message) alert(`✅ ${data.message}`);
                 else alert(data.error || 'Failed.');
@@ -551,12 +520,12 @@
                 if (items.length === 0) { list.innerHTML = `<div style="text-align:center; color:#999;">Your wishlist is empty.</div>`; return; }
                 list.innerHTML = items.map(item => `
                     <div class="wishlist-item">
-                        <img src="${getProductImage(item.main_image)}" style="width:80px;height:80px;border-radius:8px;object-fit:cover;">
+                        <img src="${getProductImage(item.main_image)}" alt="${item.name}">
                         <div style="flex:1;">
                             <h4>${item.name}</h4>
                             <p style="color:var(--primary); font-weight:700;">₦${Number(item.price_ngn).toLocaleString()}</p>
                         </div>
-                        <button onclick="removeFromWishlist('${item.id}')" style="background:#ffefef; color:#ff4757; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">Remove</button>
+                        <button class="remove-wish-btn" onclick="removeFromWishlist('${item.id}')">Remove</button>
                     </div>
                 `).join('');
             } catch (error) { console.error(error); }
@@ -587,11 +556,10 @@
                 return;
             }
 
+            const payload = { user_id: user.id, full_name: user.full_name || '', phone: user.phone || '', address, city, state, country };
+
             try {
-                const response = await fetch(`${BASE_URL}/api/addresses`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: user.id, full_name: user.full_name, phone: user.phone, address, city, state, country })
-                });
+                const response = await fetch(`${BASE_URL}/api/addresses`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 const data = await response.json();
                 if (data.message) {
                     alert('✅ Address added!');
@@ -611,7 +579,7 @@
                 const addresses = await response.json();
                 const list = document.getElementById('address-list');
                 if (addresses.length === 0) {
-                    list.innerHTML = `<button onclick="showAddressForm()" style="background:#f0f2f5; border:none; padding:15px; width:100%; border-radius:12px; font-weight:600; color:#666;">+ Add New Address</button>`;
+                    list.innerHTML = `<button onclick="showAddressForm()" style="background:#f4f6f9; border:none; padding:15px; width:100%; border-radius:12px; font-weight:600; color:#666;">+ Add New Address</button>`;
                     return;
                 }
                 list.innerHTML = addresses.map(addr => `
@@ -643,7 +611,7 @@
                         <h4>Order #${order.id.slice(0, 8)}</h4>
                         <p>${new Date(order.created_at).toLocaleDateString()}</p>
                         <div class="total">₦${Number(order.total_amount).toLocaleString()}</div>
-                        <p style="color:#ff4757; font-weight:600;">${order.status}</p>
+                        <p class="status">${order.status}</p>
                     </div>
                 `).join('');
             } catch (error) { console.error(error); }
@@ -665,10 +633,7 @@
             const total = document.getElementById('total').innerText.replace('₦', '').replace(/,/g, '');
             const email = user.email;
             try {
-                const response = await fetch(`${BASE_URL}/api/pay/initialize`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ property_id: null, buyer_email: email, amount_ngn: parseInt(total), metadata: { user_id: user.id } })
-                });
+                const response = await fetch(`${BASE_URL}/api/pay/initialize`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ property_id: null, buyer_email: email, amount_ngn: parseInt(total), metadata: { user_id: user.id } }) });
                 const data = await response.json();
                 if (data.status && data.data.authorization_url) {
                     window.location.href = data.data.authorization_url;
