@@ -299,7 +299,11 @@
             }
             grid.innerHTML = data.map(prod => `
                 <div class="product-card">
-                    <div class="product-img"><img src="${prod.main_image}" style="width:100%;height:140px;object-fit:cover;" alt="Product"></div>
+                    <div class="product-img">
+                        ${prod.main_image && prod.main_image.trim() !== '' 
+                            ? `<img src="${prod.main_image}" style="width:100%;height:140px;object-fit:cover;" alt="Product">` 
+                            : `<div style="width:100%;height:140px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:30px;color:#ccc;"><i class="fas fa-box"></i></div>`}
+                    </div>
                     <div class="product-info">
                         <h4 style="font-size:13px; padding:8px 10px 0;">${prod.name}</h4>
                         <div class="price" style="font-weight:700; padding:4px 10px;">₦${Number(prod.price_ngn).toLocaleString()}</div>
@@ -333,7 +337,9 @@
                 if (cartItems.length === 0) { cartList.innerHTML = `<div style="text-align:center; color:#999;">Your cart is empty.</div>`; document.getElementById('cart-summary').style.display = 'none'; return; }
                 cartList.innerHTML = cartItems.map(item => `
                     <div class="cart-item">
-                        <img src="${item.main_image}" alt="${item.name}">
+                        ${item.main_image && item.main_image.trim() !== '' 
+                            ? `<img src="${item.main_image}" alt="${item.name}" style="width:80px;height:80px;border-radius:8px;object-fit:cover;">` 
+                            : `<div style="width:80px;height:80px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:24px;color:#ccc;"><i class="fas fa-box"></i></div>`}
                         <div class="cart-item-details">
                             <h4>${item.name}</h4>
                             <div class="price" style="color:var(--primary); font-weight:700;">₦${Number(item.price_ngn).toLocaleString()}</div>
