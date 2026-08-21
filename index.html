@@ -58,19 +58,6 @@
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 8px 0 16px; border-top: 1px solid #e5e5e5; z-index: 100; }
         .nav-item { text-align: center; color: #999; font-size: 10px; cursor: pointer; }
         .nav-item.active { color: var(--primary); }
-
-        /* --- Profile Page --- */
-        .profile-page { padding: 20px; }
-        .profile-card { background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; margin-bottom: 20px; }
-        .avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; margin: 0 auto 15px; }
-        .profile-card h2 { margin-bottom: 5px; }
-        .profile-card p { color: #666; font-size: 14px; margin-bottom: 10px; }
-        .profile-details { background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { font-weight: 600; color: #666; }
-        .detail-value { color: #333; }
-        .btn-danger { background: #ffefef; color: #ff4757; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -147,24 +134,6 @@
                 <div class="summary-row"><span>Delivery</span><span>₦2,500.00</span></div>
                 <div class="summary-row total"><span>Total</span><span id="total">₦0.00</span></div>
                 <button class="checkout-btn" onclick="checkout()">Checkout</button>
-            </div>
-        </div>
-
-        <!-- Profile Page -->
-        <div id="profile-section" style="display:none;">
-            <div class="profile-page">
-                <div class="profile-card">
-                    <div class="avatar" id="profile-avatar">U</div>
-                    <h2 id="profile-name">User Name</h2>
-                    <p id="profile-email">user@email.com</p>
-                </div>
-                <div class="profile-details">
-                    <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value" id="profile-fullname">-</span></div>
-                    <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value" id="profile-email2">-</span></div>
-                    <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value" id="profile-phone">-</span></div>
-                    <div class="detail-row"><span class="detail-label">Role</span><span class="detail-value" id="profile-role">Customer</span></div>
-                </div>
-                <button class="btn-danger" onclick="logout()">Logout</button>
             </div>
         </div>
 
@@ -358,37 +327,13 @@
             } catch (error) { alert('Network error.'); }
         }
 
-        // --- PROFILE ---
-        function loadProfile() {
-            if (!user) return;
-            document.getElementById('profile-avatar').innerText = user.full_name ? user.full_name.charAt(0).toUpperCase() : 'U';
-            document.getElementById('profile-name').innerText = user.full_name || 'User Name';
-            document.getElementById('profile-email').innerText = user.email || 'user@email.com';
-            document.getElementById('profile-fullname').innerText = user.full_name || '-';
-            document.getElementById('profile-email2').innerText = user.email || '-';
-            document.getElementById('profile-phone').innerText = user.phone || '-';
-            document.getElementById('profile-role').innerText = user.role || 'Customer';
-        }
-
         // --- NAV ---
         function switchTab(tabName) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             event.target.closest('.nav-item').classList.add('active');
-            if (tabName === 'shop') {
-                document.getElementById('products-grid').style.display = 'grid';
-                document.getElementById('cart-section').style.display = 'none';
-                document.getElementById('profile-section').style.display = 'none';
-            } else if (tabName === 'cart') {
-                document.getElementById('products-grid').style.display = 'none';
-                document.getElementById('cart-section').style.display = 'block';
-                document.getElementById('profile-section').style.display = 'none';
-                loadCart();
-            } else if (tabName === 'account') {
-                document.getElementById('products-grid').style.display = 'none';
-                document.getElementById('cart-section').style.display = 'none';
-                document.getElementById('profile-section').style.display = 'block';
-                loadProfile();
-            }
+            if (tabName === 'shop') { document.getElementById('products-grid').style.display = 'grid'; document.getElementById('cart-section').style.display = 'none'; }
+            else if (tabName === 'cart') { document.getElementById('products-grid').style.display = 'none'; document.getElementById('cart-section').style.display = 'block'; loadCart(); }
+            else { alert('Account page coming soon!'); }
         }
     </script>
 </body>
